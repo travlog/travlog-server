@@ -3,9 +3,9 @@ const prod = require('./prod')
 
 let config = null
 
-if (process.env.NODE_ENV === 'develop') {
+if (process.env.NODE_ENV === 'development') {
     config = dev
-} else if (process.env.NODE_ENV === 'prod') {
+} else if (process.env.NODE_ENV === 'production') {
     config = prod
 } else {
     console.error('not found NODE_ENV')

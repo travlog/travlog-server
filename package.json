@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "cross-env NODE_ENV=develop node ./bin/www",
+    "dev": "cross-env NODE_ENV=development node ./bin/www",
     "prod": "cross-env NODE_ENV=production node ./www"
   },
   "dependencies": {
