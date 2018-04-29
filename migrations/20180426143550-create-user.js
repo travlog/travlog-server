@@ -23,7 +23,7 @@ module.exports = {
       createdDate: {
         type: Sequelize.DATE
       },
-      updatedData: {
+      updatedDate: {
         type: Sequelize.DATE
       },
       dropDate: {

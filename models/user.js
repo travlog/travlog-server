@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
     name: DataTypes.STRING,
     isDrop: DataTypes.BOOLEAN,
     createdDate: DataTypes.DATE,
-    updatedData: DataTypes.DATE,
+    updatedDate: DataTypes.DATE,
     dropDate: DataTypes.DATE
   }, {})
   User.associate = function(models) {
