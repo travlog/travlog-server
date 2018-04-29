@@ -15,20 +15,23 @@ module.exports = {
         email: {
             type: Sequelize.STRING
         },
+        userId: {
+            type: Sequelize.STRING
+        },
         type: {
             type: Sequelize.STRING
         },
         isDrop: {
             type: Sequelize.BOOLEAN
         },
-        dropDate: {
+        dropAt: {
             type: Sequelize.DATE
         },
-        createdDate: {
+        createdAt: {
             allowNull: false,
             type: Sequelize.DATE
         },
-        updatedDate: {
+        updatedAt: {
             allowNull: false,
             type: Sequelize.DATE
         }
