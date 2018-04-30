@@ -1,82 +1,12 @@
-const models = require('../models');
 const express = require('express');
 const router = express.Router();
 
-// User.userId 중복 검사
-function generateUserId() {
-    var userId = new Date().getTime().toString();
+const User = require('../db/user')
 
-    return models.User.find({
-        attributes: ['userId'],
-        where: {
-            userId: userId
-        }
-    }).then(result => {
-        if (result == null) {
-            return userId;
-        } else {
-            generateUserId(new Date().getTime().toString());
-        }
-    });
-};
-
-// Create User
-function createUser(user) {
-    console.log('createUser: ' + JSON.stringify(user));
-
-    return models.User.create({
-        userId: user.userId,
-        password: user.password,
-        name: user.name
-    });
-};
-
-// Create Account
-function createAccount(account) {
-    console.log('createAccount: ' + JSON.stringify(account));
-
-    return models.Account.create({
-        accessToken: account.accessToken,
-        email: account.email,
-        userId: account.userId,
-        type: account.type
-    })
-};
-
-// Select User
-function getUser(userId) {
-    return models.User.find({
-        attributes: ['userId', 'name'],
-        include: [{
-            model: models.Account,
-            where: {
-                userId: userId
-            }
-        }]
-    });
-};
-
-// 이메일 계정 중복 검사
-function checkEmailAccountDuplicated(email) {
-    return models.Account.find({
-        where: {
-            email: email,
-            type: 'travlog',
-            isDrop: false
-        }
-    })
-};
-
-// SNS 계정 중복 검사
-function checkSnsAccountDuplicated(userId, type) {
-    return models.Account.find({
-        where: {
-            userId: userId,
-            type: type,
-            isDrop: false
-        }
-    })
-}
+/* GET home page. */
+router.get('/', (req, res, next) => {
+    res.render('index', { title: 'Express' })
+})
 
 router.post('/signup', async (req, res, next) => {
     var accessToken = req.body.accessToken;
@@ -92,7 +22,7 @@ router.post('/signup', async (req, res, next) => {
     if (typeof userId == 'undefined') {
 
         // 이메일 회원 가입
-        if (await checkEmailAccountDuplicated(email) != null) {
+        if (await User.checkEmailAccountDuplicated(email) != null) {
 
             // 이메일 중복
             res.status(422).json({
@@ -101,19 +31,19 @@ router.post('/signup', async (req, res, next) => {
             });
             return;
         } else {
-            userId = await generateUserId();
+            userId = await User.generateUserId();
 
             console.log('generated userId: ' + userId);
 
             type = 'travlog';
 
-            user = await createUser({
+            user = await User.createUser({
                 userId, password, name
             });
 
             console.log('created user: ' + JSON.stringify(user));
 
-            account = await createAccount({
+            account = await User.createAccount({
                 accessToken: 'accessToken',
                 email, userId, type
             });
@@ -124,20 +54,20 @@ router.post('/signup', async (req, res, next) => {
     } else {
 
         // SNS 회원가입
-        if (await checkSnsAccountDuplicated(userId, type) != null) {
+        if (await User.checkSnsAccountDuplicated(userId, type) != null) {
 
             // 로그인
-            user = await getUser(userId);
+            user = await User.getUser(userId);
             console.log('selected user: ' + JSON.stringify(user));
             account = user.Accounts[0];
         } else {
 
             // 가입
-            user = await createUser({
+            user = await User.createUser({
                 userId, name
             });
 
-            account = await createAccount({
+            account = await User.createAccount({
                 accessToken: 'accessToken',
                 email, userId, type
             });
@@ -154,10 +84,5 @@ router.post('/signup', async (req, res, next) => {
         accessToken: account.accessToken
     });
 });
-
-/* GET home page. */
-router.get('/', (req, res, next) => {
-    res.render('index', { title: 'Express' })
-})
 
 module.exports = router
