@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "cross-env NODE_ENV=development node ./bin/www",
-    "prod": "cross-env NODE_ENV=production node ./www"
+    "prod": "cross-env NODE_ENV=production node ./www",
+    "sequelize": "node_modules/.bin/sequelize"
   },
   "dependencies": {
     "cookie-parser": "~1.4.3",
@@ -16,6 +17,7 @@
     "morgan": "~1.9.0",
     "mysql2": "^1.5.3",
     "sequelize": "^4.37.6",
+    "sequelize-cli": "^4.0.0",
     "sqlite3": "^4.0.0"
   }
 }
