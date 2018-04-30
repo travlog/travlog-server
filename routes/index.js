@@ -1,11 +1,14 @@
 const express = require('express');
 const router = express.Router();
+const API = require('../lib/error')
 
 const User = require('../db/user')
 
 /* GET home page. */
 router.get('/', (req, res, next) => {
-    res.render('index', { title: 'Express' })
+    res.send(API.RESULT(API.CODE.SUCCESS, {
+        hello: 'world'
+    }))
 })
 
 router.post('/signup', async (req, res, next) => {
@@ -74,15 +77,13 @@ router.post('/signup', async (req, res, next) => {
         }
     }
 
-    console.log('user: ' + JSON.stringify(user));
-
-    res.json({
+    res.send(API.RESULT(API.CODE.SUCCESS, {
         user: {
             userId: user.userId,
             name: user.name
         },
         accessToken: account.accessToken
-    });
+    }))
 });
 
 module.exports = router
