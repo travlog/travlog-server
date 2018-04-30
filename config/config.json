@@ -3,7 +3,7 @@
     "username": "root",
     "password": null,
     "database": "database_development",
-    "storage": "c:/db/db.sqlite",
+    "storage": "./db/db.sqlite",
     "dialect": "sqlite"
   },
   "test": {
