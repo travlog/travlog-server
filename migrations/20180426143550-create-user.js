@@ -18,7 +18,8 @@ module.exports = {
         type: Sequelize.STRING
       },
       isDrop: {
-        type: Sequelize.BOOLEAN
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
       },
       createdDate: {
         type: Sequelize.DATE
