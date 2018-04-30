@@ -108,18 +108,14 @@ router.post('/signup', async (req, res, next) => {
             type = 'travlog';
 
             user = await createUser({
-                userId: userId,
-                password: password,
-                name: name
+                userId, password, name
             });
 
             console.log('created user: ' + JSON.stringify(user));
 
             account = await createAccount({
                 accessToken: 'accessToken',
-                email: email,
-                userId: userId,
-                type: type
+                email, userId, type
             });
 
             console.log('created account: ' + JSON.stringify(account));
@@ -138,15 +134,12 @@ router.post('/signup', async (req, res, next) => {
 
             // 가입
             user = await createUser({
-                userId: userId,
-                name: name
+                userId, name
             });
 
             account = await createAccount({
                 accessToken: 'accessToken',
-                email: email,
-                userId: userId,
-                type: type
+                email, userId, type
             });
         }
     }
