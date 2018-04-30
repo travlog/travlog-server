@@ -21,7 +21,8 @@ module.exports = {
         type: Sequelize.DATE
       },
       isDrop: {
-        type: Sequelize.BOOLEAN
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
       },
       dropDate: {
         type: Sequelize.DATE
