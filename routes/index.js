@@ -17,7 +17,7 @@ function ensureAuthorized(req, res, next) {
                 req.info = decodedToken
                 console.log(decodedToken)
                 return next()
-            }   
+            }
         } catch (e) {
             console.error(e)
         }
@@ -96,7 +96,7 @@ router.post('/signup', async (req, res, next) => {
         if (await User.checkSnsAccountDuplicated(userId, type) != null) {
 
             // 로그인
-            user = await User.getUser(userId)
+            user = await User.getUserByUserId(userId)
             console.log('selected user: ' + JSON.stringify(user))
             account = user.Accounts[0]
         } else {
@@ -111,6 +111,67 @@ router.post('/signup', async (req, res, next) => {
             })
         }
     }
+
+    jwt.sign({
+        id: user.userId,
+        type: account.type
+    },
+        TRAVLOG_SECRET,
+        (err, token) => {
+            res.send(API.RESULT(API.CODE.SUCCESS, {
+                user: {
+                    userId: user.userId,
+                    name: user.name
+                },
+                accessToken: token
+            }))
+        })
+})
+
+router.post('/signin', async (req, res, next) => {
+    var userId = req.body.userId;
+    var email = req.body.email;
+    var password = req.body.password;
+    var type = req.body.type;
+
+    // 이메일 로그인
+    if (!userId && (!email || !password)) {
+        res.send(API.RESULT(API.CODE.NOT_FOUND, {
+            msg: 'Failed to sign in with Email & Password.'
+        }))
+        return
+    }
+
+    // SNS 로그인
+    if ((userId && !type) || (!userId && type)) {
+        res.send(API.RESULT(API.CODE.NOT_FOUND, {
+            msg: 'Failed to sign in with SNS.'
+        }))
+        return
+    }
+
+    var user
+    var account
+
+    if (typeof userId == 'undefined') {
+
+        // 이메일 로그인
+        user = await User.getUserByEmailAndPassword(email, password)
+
+        console.log('getUserByEmailAndPassword: ' + JSON.stringify(user))
+
+        if (user == 'undefined' || user == null) {
+            res.send(API.RESULT(API.CODE.NOT_FOUND, {
+                msg: 'Failed to sign in with email and password.'
+            }))
+            return
+        }
+    } else {
+
+        // SNS 로그인
+    }
+
+    account = await User.getAccountByUserId(user.userId)
 
     jwt.sign({
         id: user.userId,
