@@ -5,25 +5,32 @@ const API = require('../lib/error')
 
 const User = require('../db/user')
 
+const TRAVLOG_SECRET = 'travlog-secret'
+
 function ensureAuthorized(req, res, next) {
-    var bearerToken
-    var bearerHeader = req.headers["authorization"]
-    if (typeof bearerHeader !== 'undefined') {
-        var bearer = bearerHeader.split(' ')
-        bearerToken = bearer[1]
-        req.token = bearerToken
-        next()
-    } else {
-        res.send(API.RESULT(API.CODE.ERROR.NOT_AUTHORIZED, {
-            msg: 'call 911'
-        }))
+    var bearerToken = req.headers["authorization"]
+    if (typeof bearerToken !== 'undefined') {
+        try {
+            const decodedToken = jwt.verify(bearerToken, TRAVLOG_SECRET)
+            if (decodedToken && decodedToken.id) {
+                req.token = bearerToken
+                req.info = decodedToken
+                console.log(decodedToken)
+                return next()
+            }   
+        } catch (e) {
+            console.error(e)
+        }
     }
+    res.status(401).send(API.RESULT(API.CODE.ERROR.NOT_AUTHORIZED, {
+        msg: 'call 911 carrera 4 gts cabriolet'
+    }))
 }
 
 /* GET home page. */
 router.get('/', (req, res, next) => {
     res.send(API.RESULT(API.CODE.SUCCESS, {
-        hello: 'world'
+        coin: 'gazuaaaaaaaaaa'
     }))
 })
 
@@ -109,7 +116,7 @@ router.post('/signup', async (req, res, next) => {
         id: user.userId,
         type: account.type
     },
-        'travlog-test',
+        TRAVLOG_SECRET,
         (err, token) => {
             res.send(API.RESULT(API.CODE.SUCCESS, {
                 user: {
