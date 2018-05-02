@@ -28,7 +28,7 @@ function ensureAuthorized(req, res, next) {
 }
 
 /* GET home page. */
-router.get('/', ensureAuthorized, (req, res, next) => {
+router.get('/', (req, res, next) => {
     res.send(API.RESULT(API.CODE.SUCCESS, {
         coin: 'gazuaaaaaaaaaa'
     }))
@@ -41,6 +41,22 @@ router.post('/signup', async (req, res, next) => {
     var name = req.body.name
     var type = req.body.type
 
+    // 이메일 가입
+    if (!userId && (!email || !password)) {
+        res.send(API.RESULT(API.CODE.NOT_FOUND, {
+            msg: 'Failed to sign up with Email & Password.'
+        }))
+        return
+    }
+
+    // SNS 가입
+    if ((userId && !type) || (!userId && type)) {
+        res.send(API.RESULT(API.CODE.NOT_FOUND, {
+            msg: 'Failed to sign up with SNS.'
+        }))
+        return
+    }
+
     var user
     var account
 
@@ -50,10 +66,9 @@ router.post('/signup', async (req, res, next) => {
         if (await User.checkEmailAccountDuplicated(email) != null) {
 
             // 이메일 중복
-            res.status(422).json({
-                code: 422,
+            res.send(API.RESULT(API.CODE.ERROR.DUPLICATED, {
                 msg: 'Email already exists.'
-            })
+            }))
             return
         } else {
             userId = await User.generateUserId()
@@ -111,6 +126,6 @@ router.post('/signup', async (req, res, next) => {
                 accessToken: token
             }))
         })
-});
+})
 
 module.exports = router
