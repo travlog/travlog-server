@@ -13,9 +13,11 @@
     "ejs": "~2.5.7",
     "express": "~4.16.0",
     "http-errors": "~1.6.2",
+    "jsonwebtoken": "^8.2.1",
     "morgan": "~1.9.0",
     "mysql2": "^1.5.3",
     "sequelize": "^4.37.6",
+    "sequelize-cli": "^4.0.0",
     "sqlite3": "^4.0.0"
   }
 }
