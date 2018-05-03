@@ -7,6 +7,24 @@ const User = require('../db/user')
 
 const TRAVLOG_SECRET = 'travlog-secret'
 
+function authorize(userId, type, cb) {
+    console.log('authorize: userId? ' + userId + ', type? ' + type)
+    jwt.sign({
+        id: userId,
+        type: type
+    },
+        TRAVLOG_SECRET,
+        (err, token) => {
+            if (err) {
+                console.log('authorize: err? ' + err)
+                cb(err, null)
+            } else {
+                console.log('authorize: token? ' + token)
+                cb(null, token)
+            }
+        })
+}
+
 function ensureAuthorized(req, res, next) {
     var bearerToken = req.headers["authorization"]
     if (typeof bearerToken !== 'undefined') {
@@ -19,10 +37,10 @@ function ensureAuthorized(req, res, next) {
                 return next()
             }
         } catch (e) {
-            console.error(e)
+            console.error('ensureAuthorized: ', e)
         }
     }
-    res.status(401).send(API.RESULT(API.CODE.ERROR.NOT_AUTHORIZED, {
+    res.send(API.RESULT(API.CODE.ERROR.NOT_AUTHORIZED, {
         msg: 'call 911 carrera 4 gts cabriolet'
     }))
 }
@@ -73,7 +91,7 @@ router.post('/signup', async (req, res, next) => {
         } else {
             userId = await User.generateUserId()
 
-            console.log('generated userId: ' + userId)
+            console.log('generateUserId? ' + userId)
 
             type = 'travlog'
 
@@ -81,13 +99,13 @@ router.post('/signup', async (req, res, next) => {
                 userId, password, name
             })
 
-            console.log('created user: ' + JSON.stringify(user))
+            console.log('createUser? ' + JSON.stringify(user))
 
             account = await User.createAccount({
                 email, userId, type
             })
 
-            console.log('created account: ' + JSON.stringify(account))
+            console.log('createAccount? ' + JSON.stringify(account))
 
         }
     } else {
@@ -97,7 +115,7 @@ router.post('/signup', async (req, res, next) => {
 
             // 로그인
             user = await User.getUserByUserId(userId)
-            console.log('selected user: ' + JSON.stringify(user))
+            console.log('getUserByUserId? ' + JSON.stringify(user))
             account = user.Accounts[0]
         } else {
 
@@ -112,12 +130,12 @@ router.post('/signup', async (req, res, next) => {
         }
     }
 
-    jwt.sign({
-        id: user.userId,
-        type: account.type
-    },
-        TRAVLOG_SECRET,
-        (err, token) => {
+    authorize(user.userId, account.type, (err, token) => {
+        if (err) {
+            res.send(API.RESULT(API.CODE.ERROR, {
+                msg: 'hi'
+            }))
+        } else {
             res.send(API.RESULT(API.CODE.SUCCESS, {
                 user: {
                     userId: user.userId,
@@ -125,7 +143,8 @@ router.post('/signup', async (req, res, next) => {
                 },
                 accessToken: token
             }))
-        })
+        }
+    })
 })
 
 router.post('/signin', async (req, res, next) => {
@@ -158,7 +177,7 @@ router.post('/signin', async (req, res, next) => {
         // 이메일 로그인
         user = await User.getUserByEmailAndPassword(email, password)
 
-        console.log('getUserByEmailAndPassword: ' + JSON.stringify(user))
+        console.log('getUserByEmailAndPassword? ' + JSON.stringify(user))
 
         if (user == 'undefined' || user == null) {
             res.send(API.RESULT(API.CODE.NOT_FOUND, {
@@ -169,16 +188,24 @@ router.post('/signin', async (req, res, next) => {
     } else {
 
         // SNS 로그인
+        user = await User.getUserByUserId(userId)
+
+        console.log('getUserByUserId? ' + JSON.stringify(user));
+
+        if (!user) {
+            res.redirect(307, '/signup')
+            return
+        }
     }
 
     account = await User.getAccountByUserId(user.userId)
 
-    jwt.sign({
-        id: user.userId,
-        type: account.type
-    },
-        TRAVLOG_SECRET,
-        (err, token) => {
+    authorize(user.userId, account.type, (err, token) => {
+        if (err) {
+            res.send(API.RESULT(API.CODE.ERROR, {
+                msg: 'hi'
+            }))
+        } else {
             res.send(API.RESULT(API.CODE.SUCCESS, {
                 user: {
                     userId: user.userId,
@@ -186,7 +213,8 @@ router.post('/signin', async (req, res, next) => {
                 },
                 accessToken: token
             }))
-        })
+        }
+    })
 })
 
 module.exports = router
