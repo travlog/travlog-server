@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "cross-env NODE_ENV=development node ./bin/www",
-    "prod": "cross-env NODE_ENV=production node ./www"
+    "dev": "cross-env NODE_ENV=development nodemon ./bin/www",
+    "prod": "cross-env NODE_ENV=production nodemon ./www"
   },
   "dependencies": {
     "cookie-parser": "~1.4.3",
@@ -19,5 +19,8 @@
     "sequelize": "^4.37.6",
     "sequelize-cli": "^4.0.0",
     "sqlite3": "^4.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.17.3"
   }
 }
