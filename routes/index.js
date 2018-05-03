@@ -207,9 +207,9 @@ router.post('/signin', async (req, res, next) => {
         console.log('getUserByUserId? ' + JSON.stringify(user));
 
         if (!user) {
-            await signUpWithSNS(userId, name, email, type, (u, a) => {
-                user = u
-                account = a
+            await signUpWithSNS(userId, name, email, type).then(result => {
+                user = result.user
+                account = result.accout
             })
         }
     }
