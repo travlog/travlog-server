@@ -22,7 +22,7 @@ function ensureAuthorized(req, res, next) {
             console.error(e)
         }
     }
-    res.status(401).send(API.RESULT(API.CODE.ERROR.NOT_AUTHORIZED, {
+    res.send(API.RESULT(API.CODE.ERROR.NOT_AUTHORIZED, {
         msg: 'call 911 carrera 4 gts cabriolet'
     }))
 }
@@ -169,6 +169,14 @@ router.post('/signin', async (req, res, next) => {
     } else {
 
         // SNS 로그인
+        user = await User.getUserByUserId(userId)
+
+        console.log('getUserByUserId: ' + JSON.stringify(user));
+
+        if (!user) {
+            res.redirect(307, '/signup')
+            return
+        }
     }
 
     account = await User.getAccountByUserId(user.userId)
