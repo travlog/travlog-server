@@ -78,18 +78,16 @@ router.post('/signup', async (req, res, next) => {
 
     // 이메일 가입
     if (!userId && (!email || !password)) {
-        res.send(API.RESULT(API.CODE.NOT_FOUND, {
+        return res.send(API.RESULT(API.CODE.NOT_FOUND, {
             msg: 'Failed to sign up with Email & Password.'
         }))
-        return
     }
 
     // SNS 가입
     if ((userId && !type) || (!userId && type)) {
-        res.send(API.RESULT(API.CODE.NOT_FOUND, {
+        return res.send(API.RESULT(API.CODE.NOT_FOUND, {
             msg: 'Failed to sign up with SNS.'
         }))
-        return
     }
 
     var user
@@ -98,13 +96,12 @@ router.post('/signup', async (req, res, next) => {
     if (typeof userId == 'undefined') {
 
         // 이메일 회원 가입
-        if (await !User.checkEmailAccountDuplicated(email)) {
+        if (!(await User.checkEmailAccountDuplicated(email))) {
 
             // 이메일 중복
-            res.send(API.RESULT(API.CODE.ERROR.DUPLICATED, {
+            return res.send(API.RESULT(API.CODE.ERROR.DUPLICATED, {
                 msg: 'Email already exists.'
             }))
-            return
         } else {
             userId = await User.generateUserId()
 
@@ -128,7 +125,7 @@ router.post('/signup', async (req, res, next) => {
     } else {
 
         // SNS 회원가입
-        if (await !User.checkSnsAccountDuplicated(userId, type)) {
+        if (!(await User.checkSnsAccountDuplicated(userId, type))) {
 
             // 로그인
             user = await User.getUserByUserId(userId)
@@ -169,18 +166,16 @@ router.post('/signin', async (req, res, next) => {
 
     // 이메일 로그인
     if (!userId && (!email || !password)) {
-        res.send(API.RESULT(API.CODE.NOT_FOUND, {
+        return res.send(API.RESULT(API.CODE.NOT_FOUND, {
             msg: 'Failed to sign in with Email & Password.'
         }))
-        return
     }
 
     // SNS 로그인
     if ((userId && !type) || (!userId && type)) {
-        res.send(API.RESULT(API.CODE.NOT_FOUND, {
+        return res.send(API.RESULT(API.CODE.NOT_FOUND, {
             msg: 'Failed to sign in with SNS.'
         }))
-        return
     }
 
     var user
@@ -194,10 +189,9 @@ router.post('/signin', async (req, res, next) => {
         console.log('getUserByEmailAndPassword? ' + JSON.stringify(user))
 
         if (!user) {
-            res.send(API.RESULT(API.CODE.NOT_FOUND, {
+            return res.send(API.RESULT(API.CODE.NOT_FOUND, {
                 msg: 'Failed to sign in with email and password.'
             }))
-            return
         }
     } else {
 
