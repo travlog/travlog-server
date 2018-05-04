@@ -4,8 +4,7 @@ const router = express.Router()
 const API = require('../lib/error')
 
 const User = require('../db/user')
-
-const TRAVLOG_SECRET = 'travlog-secret'
+const auth = require('../lib/auth')
 
 async function signUpWithSNS(userId, name, email, type) {
     const user = await User.createUser({
@@ -25,7 +24,7 @@ function authorize(userId, type, cb) {
         id: userId,
         type: type
     },
-        TRAVLOG_SECRET,
+        auth.TRAVLOG_SECRET,
         (err, token) => {
             if (err) {
                 console.log('authorize: err? ' + err)
