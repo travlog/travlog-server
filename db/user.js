@@ -44,7 +44,7 @@ exports.createAccount = (account) => {
 // Select User with userId
 exports.getUserByUserId = (userId) => {
     return models.User.find({
-        attributes: ['userId', 'name'],
+        attributes: ['userId', 'name', 'username'],
         include: [{
             model: models.Account,
             where: {
@@ -89,7 +89,7 @@ exports.checkSnsAccountDuplicated = (userId, type) => {
 // 이메일 계정 확인
 exports.getUserByEmailAndPassword = (email, password) => {
     return models.User.find({
-        attributes: ['userId', 'name'],
+        attributes: ['userId', 'name', 'username'],
         where: {
             password: password
         },
@@ -104,3 +104,12 @@ exports.getUserByEmailAndPassword = (email, password) => {
         ]
     })
 }
+
+exports.getUserByUsername = (username => {
+    return models.User.find({
+        attributes: ['name', 'username'],
+        where: {
+            username: username
+        }
+    })
+})

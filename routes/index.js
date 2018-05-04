@@ -67,8 +67,8 @@ router.get('/', (req, res, next) => {
 router.post('/signup', async (req, res, next) => {
     var userId = req.body.userId
     var password = req.body.password
-    var email = req.body.email
-    var name = req.body.name
+    const email = req.body.email || ''
+    const name = req.body.name || ''
     var type = req.body.type
 
     // 이메일 가입
@@ -111,7 +111,7 @@ router.post('/signup', async (req, res, next) => {
             console.log('createUser? ' + JSON.stringify(user))
 
             account = await User.createAccount({
-                email, userId, type
+                email, userId, type, name
             })
 
             console.log('createAccount? ' + JSON.stringify(account))
