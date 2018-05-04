@@ -13,7 +13,7 @@ async function signUpWithSNS(userId, name, email, type) {
     })
 
     const account = await User.createAccount({
-        email, userId, type
+        email, userId, type, name
     })
 
     return { user, account }

@@ -10,7 +10,7 @@ exports.generateUserId = () => {
             userId: userId
         }
     }).then(result => {
-        if (result == null) {
+        if (!result) {
             return userId
         } else {
             generateUserId(new Date().getTime().toString())
@@ -34,10 +34,10 @@ exports.createAccount = (account) => {
     console.log('createAccount: ' + JSON.stringify(account))
 
     return models.Account.create({
-        accessToken: account.accessToken,
         email: account.email,
         userId: account.userId,
-        type: account.type
+        type: account.type,
+        name: account.name
     })
 }
 
