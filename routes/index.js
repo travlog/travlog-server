@@ -7,6 +7,18 @@ const User = require('../db/user')
 
 const TRAVLOG_SECRET = 'travlog-secret'
 
+async function signUpWithSNS(userId, name, email, type) {
+    const user = await User.createUser({
+        userId, name
+    })
+
+    const account = await User.createAccount({
+        email, userId, type
+    })
+
+    return { user, account }
+}
+
 function authorize(userId, type, cb) {
     console.log('authorize: userId? ' + userId + ', type? ' + type)
     jwt.sign({
@@ -61,33 +73,30 @@ router.post('/signup', async (req, res, next) => {
 
     // 이메일 가입
     if (!userId && (!email || !password)) {
-        res.send(API.RESULT(API.CODE.NOT_FOUND, {
+        return res.send(API.RESULT(API.CODE.NOT_FOUND, {
             msg: 'Failed to sign up with Email & Password.'
         }))
-        return
     }
 
     // SNS 가입
     if ((userId && !type) || (!userId && type)) {
-        res.send(API.RESULT(API.CODE.NOT_FOUND, {
+        return res.send(API.RESULT(API.CODE.NOT_FOUND, {
             msg: 'Failed to sign up with SNS.'
         }))
-        return
     }
 
-    var user
-    var account
+    let user
+    let account
 
-    if (typeof userId == 'undefined') {
+    if (!userId) {
 
         // 이메일 회원 가입
-        if (await User.checkEmailAccountDuplicated(email) != null) {
+        if (await User.checkEmailAccountDuplicated(email)) {
 
             // 이메일 중복
-            res.send(API.RESULT(API.CODE.ERROR.DUPLICATED, {
+            return res.send(API.RESULT(API.CODE.ERROR.DUPLICATED, {
                 msg: 'Email already exists.'
             }))
-            return
         } else {
             userId = await User.generateUserId()
 
@@ -111,22 +120,15 @@ router.post('/signup', async (req, res, next) => {
     } else {
 
         // SNS 회원가입
-        if (await User.checkSnsAccountDuplicated(userId, type) != null) {
+        if (await User.checkSnsAccountDuplicated(userId, type)) {
 
             // 로그인
             user = await User.getUserByUserId(userId)
             console.log('getUserByUserId? ' + JSON.stringify(user))
             account = user.Accounts[0]
         } else {
-
             // 가입
-            user = await User.createUser({
-                userId, name
-            })
-
-            account = await User.createAccount({
-                email, userId, type
-            })
+            ({ user, account } = await signUpWithSNS(userId, name, email, type))
         }
     }
 
@@ -148,42 +150,40 @@ router.post('/signup', async (req, res, next) => {
 })
 
 router.post('/signin', async (req, res, next) => {
-    var userId = req.body.userId;
-    var email = req.body.email;
-    var password = req.body.password;
-    var type = req.body.type;
+    const userId = req.body.userId
+    const email = req.body.email
+    const name = req.body.name
+    let password = req.body.password
+    const type = req.body.type
 
     // 이메일 로그인
     if (!userId && (!email || !password)) {
-        res.send(API.RESULT(API.CODE.NOT_FOUND, {
+        return res.send(API.RESULT(API.CODE.NOT_FOUND, {
             msg: 'Failed to sign in with Email & Password.'
         }))
-        return
     }
 
     // SNS 로그인
     if ((userId && !type) || (!userId && type)) {
-        res.send(API.RESULT(API.CODE.NOT_FOUND, {
+        return res.send(API.RESULT(API.CODE.NOT_FOUND, {
             msg: 'Failed to sign in with SNS.'
         }))
-        return
     }
 
-    var user
-    var account
+    let user
+    let account
 
-    if (typeof userId == 'undefined') {
+    if (!userId) {
 
         // 이메일 로그인
         user = await User.getUserByEmailAndPassword(email, password)
 
         console.log('getUserByEmailAndPassword? ' + JSON.stringify(user))
 
-        if (user == 'undefined' || user == null) {
-            res.send(API.RESULT(API.CODE.NOT_FOUND, {
+        if (!user) {
+            return res.send(API.RESULT(API.CODE.NOT_FOUND, {
                 msg: 'Failed to sign in with email and password.'
             }))
-            return
         }
     } else {
 
@@ -193,8 +193,7 @@ router.post('/signin', async (req, res, next) => {
         console.log('getUserByUserId? ' + JSON.stringify(user));
 
         if (!user) {
-            res.redirect(307, '/signup')
-            return
+            ({ user, account } = await signUpWithSNS(userId, name, email, type))
         }
     }
 
