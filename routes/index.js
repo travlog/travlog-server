@@ -37,26 +37,6 @@ function authorize(userId, type, cb) {
         })
 }
 
-function ensureAuthorized(req, res, next) {
-    var bearerToken = req.headers["authorization"]
-    if (typeof bearerToken !== 'undefined') {
-        try {
-            const decodedToken = jwt.verify(bearerToken, TRAVLOG_SECRET)
-            if (decodedToken && decodedToken.id) {
-                req.token = bearerToken
-                req.info = decodedToken
-                console.log(decodedToken)
-                return next()
-            }
-        } catch (e) {
-            console.error('ensureAuthorized: ', e)
-        }
-    }
-    res.send(API.RESULT(API.CODE.ERROR.NOT_AUTHORIZED, {
-        msg: 'call 911 carrera 4 gts cabriolet'
-    }))
-}
-
 /* GET home page. */
 router.get('/', (req, res, next) => {
     res.send(API.RESULT(API.CODE.SUCCESS, {
