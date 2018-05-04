@@ -3,6 +3,7 @@ module.exports = (sequelize, DataTypes) => {
     var Account = sequelize.define('Account', {
         email: DataTypes.STRING,
         userId: DataTypes.STRING,
+        name: DataTypes.STRING,
         type: DataTypes.STRING,
         isDrop: DataTypes.BOOLEAN,
         dropAt: DataTypes.DATE
