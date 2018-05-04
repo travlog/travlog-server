@@ -208,7 +208,8 @@ router.post('/signin', async (req, res, next) => {
             res.send(API.RESULT(API.CODE.SUCCESS, {
                 user: {
                     userId: user.userId,
-                    name: user.name
+                    name: user.name,
+                    username: user.username
                 },
                 accessToken: token
             }))
