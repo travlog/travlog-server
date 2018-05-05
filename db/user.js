@@ -105,9 +105,19 @@ exports.getUserByEmailAndPassword = (email, password) => {
     })
 }
 
+exports.getUserByUsernameAndPassword = (username, password) => {
+    return models.User.find({
+        attributes: ['userId', 'name', 'username'],
+        where: {
+            username: username,
+            password: password
+        }
+    })
+}
+
 exports.updateUsername = (userId, username) => {
     console.log('updateUsername: ' + userId + ', ' + username)
-    
+
     return models.User.update(
         { username: username },
         { where: { userId: userId } }

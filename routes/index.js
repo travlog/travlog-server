@@ -126,13 +126,13 @@ router.post('/signup', async (req, res, next) => {
 })
 
 router.post('/signin', async (req, res, next) => {
-    const { userId = '', email = '', name = '', type = '' } = req.body
+    const { userId = '', email = '', name = '', type = '', loginId = '', username } = req.body
     let password = req.body.password
 
-    // 이메일 로그인
-    if (!userId && (!email || !password)) {
+    // 이메일 || username 로그인
+    if (!userId && (!password || !loginId)) {
         return res.send(API.RESULT(API.CODE.NOT_FOUND, {
-            msg: 'Failed to sign in with Email & Password.'
+            msg: 'Failed to sign in with password.'
         }))
     }
 
@@ -149,13 +149,18 @@ router.post('/signin', async (req, res, next) => {
     if (!userId) {
 
         // 이메일 로그인
-        user = await User.getUserByEmailAndPassword(email, password)
 
-        console.log('getUserByEmailAndPassword? ' + JSON.stringify(user))
+        user = await User.getUserByEmailAndPassword(loginId, password)
+
+        if (!user) {
+            user = await User.getUserByUsernameAndPassword(loginId, password)
+        }
+
+        console.log('getUserByLoginIdAndPassword? ' + JSON.stringify(user))
 
         if (!user) {
             return res.send(API.RESULT(API.CODE.NOT_FOUND, {
-                msg: 'Failed to sign in with email and password.'
+                msg: 'Failed to sign in with password.'
             }))
         }
     } else {
