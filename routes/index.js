@@ -7,13 +7,13 @@ const User = require('../db/user')
 const auth = require('../lib/auth')
 const TRAVLOG_SECRET = 'travlog-secret'
 
-async function signUpWithSNS(userId, name, email, type) {
+async function signUpWithSNS(userId, name, email, profilePicture, type) {
     const user = await User.createUser({
         userId, name
     })
 
     const account = await User.createAccount({
-        email, userId, type, name
+        email, userId, type, name, profilePicture
     })
 
     return { user, account }
@@ -45,7 +45,7 @@ router.get('/', (req, res, next) => {
 })
 
 router.post('/signup', async (req, res, next) => {
-    const { email = '', name = '' } = req.body
+    const { email = '', name = '', profilePicture = '' } = req.body
     let { userId = '', password = '', type = '' } = req.body
 
     // 이메일 가입
@@ -104,7 +104,7 @@ router.post('/signup', async (req, res, next) => {
             account = user.Accounts[0]
         } else {
             // 가입
-            ({ user, account } = await signUpWithSNS(userId, name, email, type))
+            ({ user, account } = await signUpWithSNS(userId, name, email, profilePicture, type))
         }
     }
 
@@ -126,7 +126,7 @@ router.post('/signup', async (req, res, next) => {
 })
 
 router.post('/signin', async (req, res, next) => {
-    const { userId = '', email = '', name = '', type = '', loginId = '', username } = req.body
+    const { userId = '', email = '', name = '', type = '', loginId = '', username, profilePicture = '' } = req.body
     let password = req.body.password
 
     // 이메일 || username 로그인
@@ -171,7 +171,7 @@ router.post('/signin', async (req, res, next) => {
         console.log('getUserByUserId? ' + JSON.stringify(user));
 
         if (!user) {
-            ({ user, account } = await signUpWithSNS(userId, name, email, type))
+            ({ user, account } = await signUpWithSNS(userId, name, email, profilePicture, type))
         }
     }
 

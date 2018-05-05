@@ -37,7 +37,8 @@ exports.createAccount = (account) => {
         email: account.email,
         userId: account.userId,
         type: account.type,
-        name: account.name
+        name: account.name,
+        profilePicture: account.profilePicture
     })
 }
 

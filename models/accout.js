@@ -4,6 +4,7 @@ module.exports = (sequelize, DataTypes) => {
         email: DataTypes.STRING,
         userId: DataTypes.STRING,
         name: DataTypes.STRING,
+        profilePicture: DataTypes.STRING,
         type: DataTypes.STRING,
         isDrop: DataTypes.BOOLEAN,
         dropAt: DataTypes.DATE
