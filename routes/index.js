@@ -9,7 +9,7 @@ const TRAVLOG_SECRET = 'travlog-secret'
 
 async function signUpWithSNS(userId, name, email, profilePicture, type) {
     const user = await User.createUser({
-        userId, name
+        userId, name, profilePicture
     })
 
     const account = await User.createAccount({
@@ -82,13 +82,13 @@ router.post('/signup', async (req, res, next) => {
             type = 'travlog'
 
             user = await User.createUser({
-                userId, password, name
+                userId, password, name, profilePicture
             })
 
             console.log('createUser? ' + JSON.stringify(user))
 
             account = await User.createAccount({
-                email, userId, type, name
+                email, userId, type, name, profilePicture
             })
 
             console.log('createAccount? ' + JSON.stringify(account))

@@ -25,7 +25,8 @@ exports.createUser = (user) => {
     return models.User.create({
         userId: user.userId,
         password: user.password,
-        name: user.name
+        name: user.name,
+        profilePicture: user.profilePicture
     })
 }
 
