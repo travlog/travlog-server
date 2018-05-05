@@ -5,6 +5,7 @@ const API = require('../lib/error')
 
 const User = require('../db/user')
 const auth = require('../lib/auth')
+const TRAVLOG_SECRET = 'travlog-secret'
 
 async function signUpWithSNS(userId, name, email, type) {
     const user = await User.createUser({
@@ -24,7 +25,7 @@ function authorize(userId, type, cb) {
         id: userId,
         type: type
     },
-        auth.TRAVLOG_SECRET,
+        TRAVLOG_SECRET,
         (err, token) => {
             if (err) {
                 console.log('authorize: err? ' + err)
@@ -44,11 +45,8 @@ router.get('/', (req, res, next) => {
 })
 
 router.post('/signup', async (req, res, next) => {
-    var userId = req.body.userId
-    var password = req.body.password
-    const email = req.body.email || ''
-    const name = req.body.name || ''
-    var type = req.body.type
+    const { email = '', name = '' } = req.body
+    let { userId = '', password = '', type = '' } = req.body
 
     // 이메일 가입
     if (!userId && (!email || !password)) {
@@ -94,7 +92,6 @@ router.post('/signup', async (req, res, next) => {
             })
 
             console.log('createAccount? ' + JSON.stringify(account))
-
         }
     } else {
 
@@ -129,11 +126,8 @@ router.post('/signup', async (req, res, next) => {
 })
 
 router.post('/signin', async (req, res, next) => {
-    const userId = req.body.userId
-    const email = req.body.email
-    const name = req.body.name
+    const { userId = '', email = '', name = '', type = '' } = req.body
     let password = req.body.password
-    const type = req.body.type
 
     // 이메일 로그인
     if (!userId && (!email || !password)) {
