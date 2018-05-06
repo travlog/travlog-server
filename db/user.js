@@ -46,7 +46,7 @@ exports.createAccount = (account) => {
 // Select User with userId
 exports.getUserByUserId = (userId) => {
     return models.User.find({
-        attributes: ['userId', 'name', 'username'],
+        attributes: ['userId', 'name', 'username', 'profilePicture'],
         include: [{
             model: models.Account,
             where: {
@@ -91,7 +91,7 @@ exports.checkSnsAccountDuplicated = (userId, type) => {
 // 이메일 계정 확인
 exports.getUserByEmailAndPassword = (email, password) => {
     return models.User.find({
-        attributes: ['userId', 'name', 'username'],
+        attributes: ['userId', 'name', 'username', 'profilePicture'],
         where: {
             password: password
         },
@@ -109,7 +109,7 @@ exports.getUserByEmailAndPassword = (email, password) => {
 
 exports.getUserByUsernameAndPassword = (username, password) => {
     return models.User.find({
-        attributes: ['userId', 'name', 'username'],
+        attributes: ['userId', 'name', 'username', 'profilePicture'],
         where: {
             username: username,
             password: password
@@ -128,7 +128,7 @@ exports.updateUsername = (userId, username) => {
 
 exports.getUserByUsername = (username) => {
     return models.User.find({
-        attributes: ['name', 'username'],
+        attributes: ['name', 'username', 'profilePicture'],
         where: {
             username: username
         }

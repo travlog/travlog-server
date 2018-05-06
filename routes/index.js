@@ -117,7 +117,9 @@ router.post('/signup', async (req, res, next) => {
             res.send(API.RESULT(API.CODE.SUCCESS, {
                 user: {
                     userId: user.userId,
-                    name: user.name
+                    name: user.name,
+                    username: user.username,
+                    profilePicture: user.profilePicture
                 },
                 accessToken: token
             }))
@@ -187,7 +189,8 @@ router.post('/signin', async (req, res, next) => {
                 user: {
                     userId: user.userId,
                     name: user.name,
-                    username: user.username
+                    username: user.username,
+                    profilePicture: user.profilePicture
                 },
                 accessToken: token
             }))
