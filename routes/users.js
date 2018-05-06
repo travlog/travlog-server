@@ -39,4 +39,37 @@ router.get('/:username', async (req, res) => {
   }))
 })
 
+router.put('/:userId/link', async (req, res) => {
+  const { userId, email, name, profilePicture, type } = req.body
+
+  const user = await User.getUserByUserId(req.params.userId)
+
+  if (!user) {
+    return res.send(API.RESULT(API.CODE.NOT_FOUND, {
+      msg: 'nope!'
+    }))
+  }
+
+  if (await User.getAccountByUserId(userId)) {
+    return res.send(API.RESULT(API.CODE.ERROR.DUPLICATED, {
+      msg: 'nonono'
+    }))
+  }
+
+  const u_id = user.id
+
+  const account = await User.createAccount({
+    email, userId, type, name, profilePicture, u_id
+  })
+
+
+  const accounts = await User.getLinkedAccounts(u_id)
+
+  return res.send(API.RESULT(API.CODE.SUCCESS, {
+    accounts: accounts
+  }))
+
+
+})
+
 module.exports = router

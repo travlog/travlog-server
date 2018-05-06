@@ -39,18 +39,20 @@ exports.createAccount = (account) => {
         userId: account.userId,
         type: account.type,
         name: account.name,
-        profilePicture: account.profilePicture
+        profilePicture: account.profilePicture,
+        u_id: account.u_id
     })
 }
 
 // Select User with userId
 exports.getUserByUserId = (userId) => {
     return models.User.find({
-        attributes: ['userId', 'name', 'username', 'profilePicture'],
+        attributes: ['id', 'userId', 'name', 'username', 'profilePicture'],
         include: [{
             model: models.Account,
             where: {
-                userId: userId
+                userId: userId,
+                isDrop: false
             }
         }]
     })
@@ -61,7 +63,8 @@ exports.getAccountByUserId = (userId) => {
     return models.Account.find({
         attributes: ['userId', 'type'],
         where: {
-            userId, userId
+            userId, userId,
+            isDrop: false
         }
     })
 }
@@ -91,16 +94,18 @@ exports.checkSnsAccountDuplicated = (userId, type) => {
 // 이메일 계정 확인
 exports.getUserByEmailAndPassword = (email, password) => {
     return models.User.find({
-        attributes: ['userId', 'name', 'username', 'profilePicture'],
+        attributes: ['id', 'userId', 'name', 'username', 'profilePicture'],
         where: {
-            password: password
+            password: password,
+            isDrop: false
         },
         include: [
             {
                 model: models.Account,
                 where: {
                     email: email,
-                    type: 'travlog'
+                    type: 'travlog',
+                    isDrop: false
                 }
             }
         ]
@@ -109,10 +114,11 @@ exports.getUserByEmailAndPassword = (email, password) => {
 
 exports.getUserByUsernameAndPassword = (username, password) => {
     return models.User.find({
-        attributes: ['userId', 'name', 'username', 'profilePicture'],
+        attributes: ['id', 'userId', 'name', 'username', 'profilePicture'],
         where: {
             username: username,
-            password: password
+            password: password,
+            isDrop: false
         }
     })
 }
@@ -120,17 +126,46 @@ exports.getUserByUsernameAndPassword = (username, password) => {
 exports.updateUsername = (userId, username) => {
     console.log('updateUsername: ' + userId + ', ' + username)
 
-    return models.User.update(
-        { username: username },
-        { where: { userId: userId } }
+    return models.User.update({
+        username: username
+    },
+        {
+            where: {
+                userId: userId,
+                isDrop: false
+            }
+        }
     )
 }
 
 exports.getUserByUsername = (username) => {
     return models.User.find({
-        attributes: ['name', 'username', 'profilePicture'],
+        attributes: ['id', 'name', 'username', 'profilePicture'],
         where: {
-            username: username
+            username: username,
+            isDrop: false
         }
     })
+}
+
+exports.getLinkedAccounts = (u_id) => {
+    return models.Account.findAll({
+        attributes: ['userId', 'email', 'name', 'profilePicture', 'type'],
+        where: {
+            u_id: u_id,
+            isDrop: false
+        }
+    })
+}
+
+exports.updateUserId = (id, userId) => {
+    return models.User.update({
+        userId: userId
+    },
+        {
+            where: {
+                id: id,
+                isDrop: false
+            }
+        })
 }
