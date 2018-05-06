@@ -4,16 +4,16 @@ const router = express.Router()
 const API = require('../lib/error')
 
 const User = require('../db/user')
-
+const auth = require('../lib/auth')
 const TRAVLOG_SECRET = 'travlog-secret'
 
-async function signUpWithSNS(userId, name, email, type) {
+async function signUpWithSNS(userId, name, email, profilePicture, type) {
     const user = await User.createUser({
-        userId, name
+        userId, name, profilePicture
     })
 
     const account = await User.createAccount({
-        email, userId, type, name
+        email, userId, type, name, profilePicture
     })
 
     return { user, account }
@@ -37,26 +37,6 @@ function authorize(userId, type, cb) {
         })
 }
 
-function ensureAuthorized(req, res, next) {
-    var bearerToken = req.headers["authorization"]
-    if (typeof bearerToken !== 'undefined') {
-        try {
-            const decodedToken = jwt.verify(bearerToken, TRAVLOG_SECRET)
-            if (decodedToken && decodedToken.id) {
-                req.token = bearerToken
-                req.info = decodedToken
-                console.log(decodedToken)
-                return next()
-            }
-        } catch (e) {
-            console.error('ensureAuthorized: ', e)
-        }
-    }
-    res.send(API.RESULT(API.CODE.ERROR.NOT_AUTHORIZED, {
-        msg: 'call 911 carrera 4 gts cabriolet'
-    }))
-}
-
 /* GET home page. */
 router.get('/', (req, res, next) => {
     res.send(API.RESULT(API.CODE.SUCCESS, {
@@ -65,11 +45,8 @@ router.get('/', (req, res, next) => {
 })
 
 router.post('/signup', async (req, res, next) => {
-    var userId = req.body.userId
-    var password = req.body.password
-    var email = req.body.email
-    var name = req.body.name
-    var type = req.body.type
+    const { email = '', name = '', profilePicture = '' } = req.body
+    let { userId = '', password = '', type = '' } = req.body
 
     // 이메일 가입
     if (!userId && (!email || !password)) {
@@ -105,17 +82,16 @@ router.post('/signup', async (req, res, next) => {
             type = 'travlog'
 
             user = await User.createUser({
-                userId, password, name
+                userId, password, name, profilePicture
             })
 
             console.log('createUser? ' + JSON.stringify(user))
 
             account = await User.createAccount({
-                email, userId, type
+                email, userId, type, name, profilePicture
             })
 
             console.log('createAccount? ' + JSON.stringify(account))
-
         }
     } else {
 
@@ -128,7 +104,7 @@ router.post('/signup', async (req, res, next) => {
             account = user.Accounts[0]
         } else {
             // 가입
-            ({ user, account } = await signUpWithSNS(userId, name, email, type))
+            ({ user, account } = await signUpWithSNS(userId, name, email, profilePicture, type))
         }
     }
 
@@ -141,7 +117,9 @@ router.post('/signup', async (req, res, next) => {
             res.send(API.RESULT(API.CODE.SUCCESS, {
                 user: {
                     userId: user.userId,
-                    name: user.name
+                    name: user.name,
+                    username: user.username,
+                    profilePicture: user.profilePicture
                 },
                 accessToken: token
             }))
@@ -150,16 +128,13 @@ router.post('/signup', async (req, res, next) => {
 })
 
 router.post('/signin', async (req, res, next) => {
-    const userId = req.body.userId
-    const email = req.body.email
-    const name = req.body.name
+    const { userId = '', email = '', name = '', type = '', loginId = '', username, profilePicture = '' } = req.body
     let password = req.body.password
-    const type = req.body.type
 
-    // 이메일 로그인
-    if (!userId && (!email || !password)) {
+    // 이메일 || username 로그인
+    if (!userId && (!password || !loginId)) {
         return res.send(API.RESULT(API.CODE.NOT_FOUND, {
-            msg: 'Failed to sign in with Email & Password.'
+            msg: 'Failed to sign in with password.'
         }))
     }
 
@@ -176,13 +151,18 @@ router.post('/signin', async (req, res, next) => {
     if (!userId) {
 
         // 이메일 로그인
-        user = await User.getUserByEmailAndPassword(email, password)
 
-        console.log('getUserByEmailAndPassword? ' + JSON.stringify(user))
+        user = await User.getUserByEmailAndPassword(loginId, password)
+
+        if (!user) {
+            user = await User.getUserByUsernameAndPassword(loginId, password)
+        }
+
+        console.log('getUserByLoginIdAndPassword? ' + JSON.stringify(user))
 
         if (!user) {
             return res.send(API.RESULT(API.CODE.NOT_FOUND, {
-                msg: 'Failed to sign in with email and password.'
+                msg: 'Failed to sign in with password.'
             }))
         }
     } else {
@@ -193,7 +173,7 @@ router.post('/signin', async (req, res, next) => {
         console.log('getUserByUserId? ' + JSON.stringify(user));
 
         if (!user) {
-            ({ user, account } = await signUpWithSNS(userId, name, email, type))
+            ({ user, account } = await signUpWithSNS(userId, name, email, profilePicture, type))
         }
     }
 
@@ -208,7 +188,9 @@ router.post('/signin', async (req, res, next) => {
             res.send(API.RESULT(API.CODE.SUCCESS, {
                 user: {
                     userId: user.userId,
-                    name: user.name
+                    name: user.name,
+                    username: user.username,
+                    profilePicture: user.profilePicture
                 },
                 accessToken: token
             }))

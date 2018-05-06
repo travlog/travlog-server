@@ -25,7 +25,8 @@ exports.createUser = (user) => {
     return models.User.create({
         userId: user.userId,
         password: user.password,
-        name: user.name
+        name: user.name,
+        profilePicture: user.profilePicture
     })
 }
 
@@ -37,14 +38,15 @@ exports.createAccount = (account) => {
         email: account.email,
         userId: account.userId,
         type: account.type,
-        name: account.name
+        name: account.name,
+        profilePicture: account.profilePicture
     })
 }
 
 // Select User with userId
 exports.getUserByUserId = (userId) => {
     return models.User.find({
-        attributes: ['userId', 'name'],
+        attributes: ['userId', 'name', 'username', 'profilePicture'],
         include: [{
             model: models.Account,
             where: {
@@ -89,7 +91,7 @@ exports.checkSnsAccountDuplicated = (userId, type) => {
 // 이메일 계정 확인
 exports.getUserByEmailAndPassword = (email, password) => {
     return models.User.find({
-        attributes: ['userId', 'name'],
+        attributes: ['userId', 'name', 'username', 'profilePicture'],
         where: {
             password: password
         },
@@ -102,5 +104,33 @@ exports.getUserByEmailAndPassword = (email, password) => {
                 }
             }
         ]
+    })
+}
+
+exports.getUserByUsernameAndPassword = (username, password) => {
+    return models.User.find({
+        attributes: ['userId', 'name', 'username', 'profilePicture'],
+        where: {
+            username: username,
+            password: password
+        }
+    })
+}
+
+exports.updateUsername = (userId, username) => {
+    console.log('updateUsername: ' + userId + ', ' + username)
+
+    return models.User.update(
+        { username: username },
+        { where: { userId: userId } }
+    )
+}
+
+exports.getUserByUsername = (username) => {
+    return models.User.find({
+        attributes: ['name', 'username', 'profilePicture'],
+        where: {
+            username: username
+        }
     })
 }
