@@ -37,7 +37,7 @@ exports.createAccount = (account) => {
     return models.Account.create({
         email: account.email,
         userId: account.userId,
-        type: account.type,
+        provider: account.provider,
         name: account.name,
         profilePicture: account.profilePicture,
         u_id: account.u_id
@@ -61,7 +61,7 @@ exports.getUserByUserId = (userId) => {
 // Select Account with userId
 exports.getAccountByUserId = (userId) => {
     return models.Account.find({
-        attributes: ['userId', 'type'],
+        attributes: ['userId', 'provider'],
         where: {
             userId, userId,
             isDrop: false
@@ -70,22 +70,22 @@ exports.getAccountByUserId = (userId) => {
 }
 
 // 이메일 계정 중복 검사
-exports.getAccountByEmail = (email, type) => {
+exports.getAccountByEmail = (email, provider) => {
     return models.Account.find({
         where: {
             email: email,
-            type: type,
+            provider: provider,
             isDrop: false
         }
     })
 };
 
 // SNS 계정 중복 검사
-exports.checkSnsAccountDuplicated = (userId, type) => {
+exports.checkSnsAccountDuplicated = (userId, provider) => {
     return models.Account.find({
         where: {
             userId: userId,
-            type: type,
+            provider: provider,
             isDrop: false
         }
     })
@@ -104,7 +104,7 @@ exports.getUserByEmailAndPassword = (email, password) => {
                 model: models.Account,
                 where: {
                     email: email,
-                    type: 'travlog',
+                    provider: 'travlog',
                     isDrop: false
                 }
             }
@@ -150,7 +150,7 @@ exports.getUserByUsername = (username) => {
 
 exports.getLinkedAccounts = (u_id) => {
     return models.Account.findAll({
-        attributes: ['userId', 'email', 'name', 'profilePicture', 'type'],
+        attributes: ['userId', 'email', 'name', 'profilePicture', 'provider'],
         where: {
             u_id: u_id,
             isDrop: false

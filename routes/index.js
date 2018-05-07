@@ -15,7 +15,7 @@ const oAuth2Client = new googleapis.google.auth.OAuth2(
     config.google.clientSecret
 )
 
-async function signUpWithSNS(userId, name, email, profilePicture, type) {
+async function signUpWithSNS(userId, name, email, profilePicture, provider) {
     const user = await User.createUser({
         userId, name, profilePicture
     })
@@ -23,17 +23,17 @@ async function signUpWithSNS(userId, name, email, profilePicture, type) {
     const u_id = user.id
 
     const account = await User.createAccount({
-        email, userId, type, name, profilePicture, u_id
+        email, userId, provider, name, profilePicture, u_id
     })
 
     return { user, account }
 }
 
-function authorize(userId, type, cb) {
-    console.log('authorize: userId? ' + userId + ', type? ' + type)
+function authorize(userId, provider, cb) {
+    console.log('authorize: userId? ' + userId + ', provider? ' + provider)
     jwt.sign({
         id: userId,
-        type: type
+        provider: provider
     },
         TRAVLOG_SECRET,
         (err, token) => {
@@ -65,12 +65,12 @@ router.post('/signup', async (req, res) => {
         }))
     }
 
-    const type = 'travlog'
+    const provider = 'travlog'
     let user
     let account
 
     // 이메일 회원 가입
-    if (await User.getAccountByEmail(email, type)) {
+    if (await User.getAccountByEmail(email, provider)) {
 
         // 이메일 중복
         return res.send(API.RESULT(API.CODE.ERROR.DUPLICATED, {
@@ -90,13 +90,13 @@ router.post('/signup', async (req, res) => {
         const u_id = user.id
 
         account = await User.createAccount({
-            email, userId, type, u_id
+            email, userId, provider, u_id
         })
 
         console.log('createAccount? ' + JSON.stringify(account))
     }
 
-    authorize(user.userId, account.type, (err, token) => {
+    authorize(user.userId, account.provider, (err, token) => {
         if (err) {
             res.send(API.RESULT(API.CODE.ERROR, {
                 msg: 'hi'
@@ -146,7 +146,7 @@ router.post('/signin', async (req, res, next) => {
 
     account = await User.getAccountByUserId(user.userId)
 
-    authorize(user.userId, account.type, (err, token) => {
+    authorize(user.userId, account.provider, (err, token) => {
         if (err) {
             res.send(API.RESULT(API.CODE.ERROR, {
                 msg: 'hi'
@@ -240,7 +240,7 @@ router.post('/oauth', async (req, res) => {
 
             console.log('getAccountByUserId? ' + JSON.stringify(account))
 
-            authorize(userId, account.type, (err, token) => {
+            authorize(userId, account.provider, (err, token) => {
                 if (err) {
                     return res.send(API.RESULT(API.CODE.ERROR, {
                         msg: 'hi'
