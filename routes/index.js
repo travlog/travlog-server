@@ -6,7 +6,14 @@ const API = require('../lib/error')
 const User = require('../db/user')
 const auth = require('../lib/auth')
 const TRAVLOG_SECRET = 'travlog-secret'
-const fbGraph = require('fbgraph');
+const fbGraph = require('fbgraph')
+const googleapis = require('googleapis')
+const config = require('../config/dev')
+
+const oAuth2Client = new googleapis.google.auth.OAuth2(
+    config.google.clientId,
+    config.google.clientSecret
+)
 
 async function signUpWithSNS(userId, name, email, profilePicture, type) {
     const user = await User.createUser({
@@ -159,9 +166,9 @@ router.post('/signin', async (req, res, next) => {
 })
 
 router.post('/oauth', async (req, res) => {
-    const { accessToken, provider } = req.body
+    const { token, provider } = req.body
 
-    if (!accessToken || !provider) {
+    if (!token || !provider) {
         return res.send(API.RESULT(API.CODE.NOT_FOUND, {
             msg: 'bye'
         }))
@@ -174,7 +181,7 @@ router.post('/oauth', async (req, res) => {
 
     new Promise(resolve => {
         if (provider == 'facebook') {
-            fbGraph.setAccessToken(accessToken)
+            fbGraph.setAccessToken(token)
 
             fbGraph.get('me?fields=email,name,picture', (err, res) => {
                 if (err) {
@@ -191,7 +198,26 @@ router.post('/oauth', async (req, res) => {
                 }
             })
         } else if (provider == 'google') {
+            oAuth2Client.verifyIdToken({
+                idToken: token
+            }, (err, res) => {
+                if (err) {
+                    console.error(err)
+                    resolve(null)
+                } else {
+                    const payload = res.payload
+                    console.log('payload? ' + JSON.stringify(payload))
 
+                    resolve({
+                        userId: payload.sub,
+                        profilePicture: payload.picture,
+                        email: payload.email,
+                        name: payload.name,
+                    })
+                }
+            })
+        } else {
+            resolve(null)
         }
     }).then(async result => {
         if (!result) {
@@ -233,42 +259,6 @@ router.post('/oauth', async (req, res) => {
             })
         }
     })
-
-
-
-
-    // let user
-    // let account
-
-    // user = await User.getUserByUserId(userId)
-
-    // console.log('getUserByUserId? ' + JSON.stringify(user));
-
-    // if (!user) {
-    //     ({ user, account } = await signUpWithSNS(userId, name, email, profilePicture, type))
-    // } else {
-    //     await User.updateUserId(user.id, userId)
-    // }
-
-    // account = await User.getAccountByUserId(userId)
-
-    // authorize(userId, account.type, (err, token) => {
-    //     if (err) {
-    //         res.send(API.RESULT(API.CODE.ERROR, {
-    //             msg: 'hi'
-    //         }))
-    //     } else {
-    //         res.send(API.RESULT(API.CODE.SUCCESS, {
-    //             user: {
-    //                 userId: user.userId,
-    //                 name: user.name,
-    //                 username: user.username,
-    //                 profilePicture: user.profilePicture
-    //             },
-    //             accessToken: token
-    //         }))
-    //     }
-    // })
 })
 
 module.exports = router
