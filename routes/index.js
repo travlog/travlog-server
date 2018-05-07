@@ -12,8 +12,10 @@ async function signUpWithSNS(userId, name, email, profilePicture, type) {
         userId, name, profilePicture
     })
 
+    const u_id = user.id
+
     const account = await User.createAccount({
-        email, userId, type, name, profilePicture
+        email, userId, type, name, profilePicture, u_id
     })
 
     return { user, account }
@@ -87,8 +89,10 @@ router.post('/signup', async (req, res, next) => {
 
             console.log('createUser? ' + JSON.stringify(user))
 
+            const u_id = user.id
+
             account = await User.createAccount({
-                email, userId, type, name, profilePicture
+                email, userId, type, name, profilePicture, u_id
             })
 
             console.log('createAccount? ' + JSON.stringify(account))
@@ -174,12 +178,14 @@ router.post('/signin', async (req, res, next) => {
 
         if (!user) {
             ({ user, account } = await signUpWithSNS(userId, name, email, profilePicture, type))
+        } else {
+            await User.updateUserId(user.id, userId)
         }
     }
 
-    account = await User.getAccountByUserId(user.userId)
+    account = await User.getAccountByUserId(userId)
 
-    authorize(user.userId, account.type, (err, token) => {
+    authorize(userId, account.type, (err, token) => {
         if (err) {
             res.send(API.RESULT(API.CODE.ERROR, {
                 msg: 'hi'
