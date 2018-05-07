@@ -174,7 +174,6 @@ router.post('/oauth', async (req, res) => {
 
     new Promise(resolve => {
         if (provider == 'facebook') {
-
             fbGraph.setAccessToken(accessToken)
 
             fbGraph.get('me?fields=email,name,picture', (err, res) => {
@@ -195,38 +194,44 @@ router.post('/oauth', async (req, res) => {
 
         }
     }).then(async result => {
-        ({ userId, profilePicture, email, name } = result)
-
-        let user = await User.getUserByUserId(userId)
-        let account
-
-        if (!user) {
-            ({ user, account } = await signUpWithSNS(userId, name, email, profilePicture, provider))
+        if (!result) {
+            return res.send(API.RESULT(API.CODE.ERROR, {
+                msg: 'nono'
+            }))
         } else {
-            await User.updateUserId(user.id, userId)
-        }
+            ({ userId, profilePicture, email, name } = result)
 
-        account = await User.getAccountByUserId(userId)
+            let user = await User.getUserByUserId(userId)
+            let account
 
-        console.log('getAccountByUserId? ' + JSON.stringify(account))
-
-        authorize(userId, account.type, (err, token) => {
-            if (err) {
-                res.send(API.RESULT(API.CODE.ERROR, {
-                    msg: 'hi'
-                }))
+            if (!user) {
+                ({ user, account } = await signUpWithSNS(userId, name, email, profilePicture, provider))
             } else {
-                res.send(API.RESULT(API.CODE.SUCCESS, {
-                    user: {
-                        userId: user.userId,
-                        name: user.name,
-                        username: user.username,
-                        profilePicture: user.profilePicture
-                    },
-                    accessToken: token
-                }))
+                await User.updateUserId(user.id, userId)
             }
-        })
+
+            account = await User.getAccountByUserId(userId)
+
+            console.log('getAccountByUserId? ' + JSON.stringify(account))
+
+            authorize(userId, account.type, (err, token) => {
+                if (err) {
+                    return res.send(API.RESULT(API.CODE.ERROR, {
+                        msg: 'hi'
+                    }))
+                } else {
+                    return res.send(API.RESULT(API.CODE.SUCCESS, {
+                        user: {
+                            userId: user.userId,
+                            name: user.name,
+                            username: user.username,
+                            profilePicture: user.profilePicture
+                        },
+                        accessToken: token
+                    }))
+                }
+            })
+        }
     })
 
 
