@@ -70,11 +70,11 @@ exports.getAccountByUserId = (userId) => {
 }
 
 // 이메일 계정 중복 검사
-exports.checkEmailAccountDuplicated = (email) => {
+exports.getAccountByEmail = (email, type) => {
     return models.Account.find({
         where: {
             email: email,
-            type: 'travlog',
+            type: type,
             isDrop: false
         }
     })
