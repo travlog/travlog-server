@@ -94,12 +94,9 @@ exports.checkSnsAccountDuplicated = (userId, type) => {
 }
 
 // 이메일 계정 확인
-exports.getUserByEmailAndPassword = (email, password) => {
-    return models.User.find({
-        attributes: ['userId', 'name', 'username', 'profilePicture'],
-        where: {
-            password: password
-        },
+exports.getUserByEmailAndPassword = async (email, password) => {
+    let user = await models.User.find({
+        attributes: ['userId', 'name', 'username', 'profilePicture', 'password'],
         include: [
             {
                 model: models.Account,
@@ -109,7 +106,12 @@ exports.getUserByEmailAndPassword = (email, password) => {
                 }
             }
         ]
-    })
+    });
+
+    console.log(user);
+
+    const isCorrectPassword = bcrypt.compareSync(password, user.password)
+    return isCorrectPassword ? user : undefined;
 }
 
 exports.getUserByUsernameAndPassword = (username, password) => {
