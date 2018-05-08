@@ -8,16 +8,17 @@ const logger = require('morgan')
 
 const indexRouter = require('./routes/index')
 const usersRouter = require('./routes/users')
+const notesRouter = require('./routes/notes')
 
 const app = express()
 
 require('./models/index').sequelize.authenticate()
-.then(() => {
-  console.log('Connection has been established successfully.')
-})
-.catch(err => {
-  console.error('Unable to connect to the database:', err)
-})
+  .then(() => {
+    console.log('Connection has been established successfully.')
+  })
+  .catch(err => {
+    console.error('Unable to connect to the database:', err)
+  })
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'))
@@ -31,6 +32,7 @@ app.use(express.static(path.join(__dirname, 'public')))
 
 app.use('/api/', indexRouter)
 app.use('/api/users', usersRouter)
+app.use('/api/notes', notesRouter)
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
