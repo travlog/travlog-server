@@ -219,46 +219,47 @@ router.post('/oauth', async (req, res) => {
         } else {
             resolve(null)
         }
-    }).then(async result => {
-        if (!result) {
-            return res.send(API.RESULT(API.CODE.ERROR, {
-                msg: 'nono'
-            }))
-        } else {
-            ({ userId, profilePicture, email, name } = result)
-
-            let user = await User.getUserByUserId(userId)
-            let account
-
-            if (!user) {
-                ({ user, account } = await signUpWithSNS(userId, name, email, profilePicture, provider))
-            } else {
-                await User.updateUserId(user.id, userId)
-            }
-
-            account = await User.getAccountByUserId(userId)
-
-            console.log('getAccountByUserId? ' + JSON.stringify(account))
-
-            authorize(userId, account.provider, (err, token) => {
-                if (err) {
-                    return res.send(API.RESULT(API.CODE.ERROR, {
-                        msg: 'hi'
-                    }))
-                } else {
-                    return res.send(API.RESULT(API.CODE.SUCCESS, {
-                        user: {
-                            userId: user.userId,
-                            name: user.name,
-                            username: user.username,
-                            profilePicture: user.profilePicture
-                        },
-                        accessToken: token
-                    }))
-                }
-            })
-        }
     })
+        .then(async result => {
+            if (!result) {
+                return res.send(API.RESULT(API.CODE.ERROR, {
+                    msg: 'nono'
+                }))
+            } else {
+                ({ userId, profilePicture, email, name } = result)
+
+                let user = await User.getUserByUserId(userId)
+                let account
+
+                if (!user) {
+                    ({ user, account } = await signUpWithSNS(userId, name, email, profilePicture, provider))
+                } else {
+                    await User.updateUserId(user.id, userId)
+                }
+
+                account = await User.getAccountByUserId(userId)
+
+                console.log('getAccountByUserId? ' + JSON.stringify(account))
+
+                authorize(userId, account.provider, (err, token) => {
+                    if (err) {
+                        return res.send(API.RESULT(API.CODE.ERROR, {
+                            msg: 'hi'
+                        }))
+                    } else {
+                        return res.send(API.RESULT(API.CODE.SUCCESS, {
+                            user: {
+                                userId: user.userId,
+                                name: user.name,
+                                username: user.username,
+                                profilePicture: user.profilePicture
+                            },
+                            accessToken: token
+                        }))
+                    }
+                })
+            }
+        })
 })
 
 module.exports = router
