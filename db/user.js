@@ -1,4 +1,5 @@
 const models = require('../models')
+const bcrypt = require('bcryptjs')
 
 // User.userId 중복 검사
 exports.generateUserId = () => {
@@ -19,12 +20,16 @@ exports.generateUserId = () => {
 }
 
 // Create User
-exports.createUser = (user) => {
+exports.createUser = async (user) => {
     console.log('createUser: ' + JSON.stringify(user))
+
+    const salt = bcrypt.genSaltSync(10)
+    const encryptedPassword = bcrypt.hashSync(user.password, salt)
+
 
     return models.User.create({
         userId: user.userId,
-        password: user.password,
+        password: encryptedPassword,
         name: user.name,
         profilePicture: user.profilePicture
     })
