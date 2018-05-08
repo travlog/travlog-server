@@ -7,6 +7,7 @@
     "prod": "cross-env NODE_ENV=production nodemon ./www"
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "cookie-parser": "~1.4.3",
     "cross-env": "^5.1.4",
     "debug": "~2.6.9",
