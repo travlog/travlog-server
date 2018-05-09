@@ -7,15 +7,8 @@ const User = require('../db/user')
 const Note = require('../db/note')
 const auth = require('../lib/auth')
 
-router.post('/:userId', auth.ensureAuthorized, async (req, res) => {
-    const userId = req.params.userId
-    const user = await User.getUserByUserId(userId)
-
-    if (!user) {
-        return res.send(API.RESULT(API.CODE.NOT_FOUND, {
-            msg: 'User not found.'
-        }))
-    }
+router.post('/', auth.ensureAuthorized, async (req, res) => {
+    const user = req.user
 
     const { title } = req.body
 
@@ -36,16 +29,9 @@ router.post('/:userId', auth.ensureAuthorized, async (req, res) => {
 
 })
 
-router.get('/:userId', auth.ensureAuthorized, async (req, res) => {
-    const userId = req.params.userId
+router.get('/', auth.ensureAuthorized, async (req, res) => {
+    const user = req.user
 
-    const user = await User.getUserByUserId(userId)
-
-    if (!user) {
-        return res.send(API.RESULT(API.CODE.NOT_FOUND, {
-            msg: 'User not found.'
-        }))
-    }
     const notes = await Note.getList(user.id)
 
     return res.send(API.RESULT(API.CODE.SUCCESS, {
