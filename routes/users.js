@@ -5,6 +5,14 @@ const API = require('../lib/error')
 const User = require('../db/user')
 
 const auth = require('../lib/auth')
+const fbGraph = require('fbgraph')
+const googleapis = require('googleapis')
+const config = require('../config/dev')
+
+const oAuth2Client = new googleapis.google.auth.OAuth2(
+  config.google.clientId,
+  config.google.clientSecret
+)
 
 /* GET users listing. */
 router.get('/', (req, res, next) => {
@@ -39,37 +47,93 @@ router.get('/:username', async (req, res) => {
   }))
 })
 
-router.put('/:userId/link', async (req, res) => {
-  const { userId, email, name, profilePicture, type } = req.body
+router.put('/:userId/link', auth.ensureAuthorized, async (req, res) => {
+  const originalUserId = req.params.userId
+  const { token, provider } = req.body
 
-  const user = await User.getUserByUserId(req.params.userId)
-
-  if (!user) {
+  if (!token || !provider) {
     return res.send(API.RESULT(API.CODE.NOT_FOUND, {
-      msg: 'nope!'
+      msg: 'good bye'
     }))
   }
 
-  if (await User.getAccountByUserId(userId)) {
-    return res.send(API.RESULT(API.CODE.ERROR.DUPLICATED, {
-      msg: 'nonono'
-    }))
-  }
+  const user = await User.getUserByUserId(originalUserId)
 
-  const u_id = user.id
+  console.log('getUserByUserId: ', JSON.stringify(user))
 
-  const account = await User.createAccount({
-    email, userId, type, name, profilePicture, u_id
+  let userId
+  let profilePicture
+  let email
+  let name
+
+  new Promise(resolve => {
+    if (provider == 'facebook') {
+      fbGraph.setAccessToken(token)
+
+      fbGraph.get('me?fields=email,name,picture', (err, res) => {
+        if (err) {
+          console.log(err)
+        } else {
+          console.log(res)
+
+          resolve({
+            userId: res.id,
+            profilePicture: res.picture.data.url,
+            email: res.email,
+            name: res.name,
+          })
+        }
+      })
+    } else if (provider == 'google') {
+      oAuth2Client.verifyIdToken({
+        idToken: token
+      }, (err, res) => {
+        if (err) {
+          console.error(err)
+          resolve(null)
+        } else {
+          const payload = res.payload
+          console.log('payload? ' + JSON.stringify(payload))
+
+          resolve({
+            userId: payload.sub,
+            profilePicture: payload.picture,
+            email: payload.email,
+            name: payload.name,
+          })
+        }
+      })
+    } else {
+      resolve(null)
+    }
   })
+    .then(async result => {
+      if (!result) {
+        return res.send(API.RESULT(API.CODE.ERROR, {
+          msg: 'nonono'
+        }))
+      } else {
+        ({ userId, profilePicture, email, name } = result)
 
+        if (await User.checkSnsAccountDuplicated(userId, provider)) {
+          // TODO: 이미 연결 된 계정인데 어떡하지...
+          return res.send(API.RESULT(API.CODE.ERROR.DUPLICATED, {
+            msg: 'T_T'
+          }))
+        } else {
+          const u_id = user.id
+          const account = await User.createAccount({
+            email, userId, provider, name, profilePicture, u_id
+          })
 
-  const accounts = await User.getLinkedAccounts(u_id)
+          const accounts = await User.getLinkedAccounts(u_id)
 
-  return res.send(API.RESULT(API.CODE.SUCCESS, {
-    accounts: accounts
-  }))
-
-
+          return res.send(API.RESULT(API.CODE.SUCCESS, {
+            accounts: accounts
+          }))
+        }
+      }
+    })
 })
 
 module.exports = router

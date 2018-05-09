@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
         userId: DataTypes.STRING,
         name: DataTypes.STRING,
         profilePicture: DataTypes.STRING,
-        type: DataTypes.STRING,
+        provider: DataTypes.STRING,
         isDrop: DataTypes.BOOLEAN,
         dropAt: DataTypes.DATE
     }, {})
