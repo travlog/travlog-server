@@ -58,6 +58,20 @@ exports.getUserByUserId = (userId) => {
     })
 }
 
+exports.getUserByUserIdAndProvider = (userId, provider) => {
+    return models.User.find({
+        attributes: ['id', 'userId', 'name', 'username', 'profilePicture'],
+        include: [{
+            model: models.Account,
+            where: {
+                userId: userId,
+                provider: provider,
+                isDrop: false
+            }
+        }]
+    })
+}
+
 // Select Account with userId
 exports.getAccountByUserId = (userId) => {
     return models.Account.find({
