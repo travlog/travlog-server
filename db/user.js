@@ -19,12 +19,16 @@ exports.generateUserId = () => {
 }
 
 // Create User
-exports.createUser = (user) => {
+exports.createUser = async (user) => {
     console.log('createUser: ' + JSON.stringify(user))
+
+    const salt = bcrypt.genSaltSync(10)
+    const encryptedPassword = bcrypt.hashSync(user.password, salt)
+
 
     return models.User.create({
         userId: user.userId,
-        password: user.password,
+        password: encryptedPassword,
         name: user.name,
         profilePicture: user.profilePicture
     })
@@ -106,11 +110,10 @@ exports.checkSnsAccountDuplicated = (userId, provider) => {
 }
 
 // 이메일 계정 확인
-exports.getUserByEmailAndPassword = (email, password) => {
-    return models.User.find({
-        attributes: ['id', 'userId', 'name', 'username', 'profilePicture'],
+exports.getUserByEmailAndPassword = async (email, password) => {
+    let user = await models.User.find({
+        attributes: ['id', 'userId', 'name', 'username', 'profilePicture', 'password'],
         where: {
-            password: password,
             isDrop: false
         },
         include: [
@@ -123,7 +126,10 @@ exports.getUserByEmailAndPassword = (email, password) => {
                 }
             }
         ]
-    })
+    });
+
+    const isCorrectPassword = bcrypt.compareSync(password, user.password)
+    return isCorrectPassword ? user : undefined;
 }
 
 exports.getUserByUsernameAndPassword = (username, password) => {
