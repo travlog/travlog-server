@@ -1,4 +1,5 @@
 const models = require('../models')
+const bcrypt = require('bcryptjs')
 
 // User.userId 중복 검사
 exports.generateUserId = () => {
