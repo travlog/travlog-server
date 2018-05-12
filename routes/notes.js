@@ -39,4 +39,24 @@ router.get('/', auth.ensureAuthorized, async (req, res) => {
     }))
 })
 
+router.delete('/:noteId', auth.ensureAuthorized, async (req, res) => {
+    const user = req.user
+    const noteId = req.params.noteId
+
+    const note = await Note.get(user.id, noteId)
+
+    if (!note) {
+        return res.send(API.RESULT(API.CODE.NOT_FOUND, {
+            msg: 'Note not found.'
+        }))
+    }
+
+    const result = await Note.delete(user.id, noteId)
+    console.log('delete result?', result)
+
+    return res.send(API.RESULT(API.CODE.SUCCESS, {
+        id: noteId
+    }))
+})
+
 module.exports = router

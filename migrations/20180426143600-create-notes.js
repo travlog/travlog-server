@@ -14,17 +14,11 @@ module.exports = {
       memo: {
         type: Sequelize.STRING
       },
-      createdDate: {
-        type: Sequelize.DATE
-      },
-      updatedDate: {
-        type: Sequelize.DATE
-      },
       isDrop: {
         type: Sequelize.BOOLEAN,
         defaultValue: false
       },
-      dropDate: {
+      dropAt: {
         type: Sequelize.DATE
       },
       createdAt: {

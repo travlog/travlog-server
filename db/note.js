@@ -16,3 +16,27 @@ exports.getList = (u_id) => {
         }
     })
 }
+
+exports.get = (u_id, noteId) => {
+    return models.Note.find({
+        attributes: ['id', 'title', 'memo'],
+        where: {
+            u_id, u_id,
+            id: noteId,
+            isDrop: false
+        }
+    })
+}
+
+exports.delete = (u_id, noteId) => {
+    return models.Note.update({
+        dropAt: new Date(),
+        isDrop: true
+    },
+        {
+            where: {
+                u_id: u_id,
+                id: noteId
+            }
+        })
+}
