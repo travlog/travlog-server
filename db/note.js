@@ -28,6 +28,18 @@ exports.get = (u_id, noteId) => {
     })
 }
 
+exports.update = (u_id, note) => {
+    return models.Note.update({
+        title: note.title
+    },
+        {
+            where: {
+                u_id: u_id,
+                id: note.id
+            }
+        })
+}
+
 exports.delete = (u_id, noteId) => {
     return models.Note.update({
         dropAt: new Date(),

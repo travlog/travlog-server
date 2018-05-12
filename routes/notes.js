@@ -39,6 +39,37 @@ router.get('/', auth.ensureAuthorized, async (req, res) => {
     }))
 })
 
+router.get('/:noteId', auth.ensureAuthorized, async (req, res) => {
+    const user = req.user
+    const noteId = req.params.noteId
+
+    const note = await Note.get(user.id, noteId)
+
+    if (!note) {
+        return res.send(API.RESULT(API.CODE.NOT_FOUND, {
+            msg: 'Note not found.'
+        }))
+    }
+
+    return res.send(API.RESULT(API.CODE.SUCCESS, note))
+})
+
+router.put('/:noteId', auth.ensureAuthorized, async (req, res) => {
+    const user = req.user
+    const noteId = req.params.noteId
+
+    const { title } = req.body
+
+    await Note.update(user.id, {
+        id: noteId,
+        title
+    })
+
+    const note = await Note.get(user.id, noteId)
+
+    return res.send(API.RESULT(API.CODE.SUCCESS, note))
+})
+
 router.delete('/:noteId', auth.ensureAuthorized, async (req, res) => {
     const user = req.user
     const noteId = req.params.noteId
