@@ -1,10 +1,7 @@
 const models = require('../models')
 
-exports.createNote = (u_id, note) => {
-    return models.Note.create({
-        u_id: u_id,
-        title: note.title
-    })
+exports.createNote = (note) => {
+    return models.Note.create(note)
 }
 
 exports.getList = (u_id) => {
@@ -17,15 +14,25 @@ exports.getList = (u_id) => {
     })
 }
 
-exports.get = (u_id, noteId) => {
+exports.get = (note) => {
     return models.Note.find({
         attributes: ['id', 'title', 'memo'],
         where: {
-            u_id, u_id,
-            id: noteId,
+            u_id: note.u_id,
+            id: note.id,
             isDrop: false
         }
     })
+}
+
+exports.update = (note) => {
+    return models.Note.update(note,
+        {
+            where: {
+                u_id: note.u_id,
+                id: note.id
+            }
+        })
 }
 
 exports.delete = (u_id, noteId) => {

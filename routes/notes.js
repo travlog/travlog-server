@@ -18,15 +18,17 @@ router.post('/', auth.ensureAuthorized, async (req, res) => {
         }))
     }
 
-    const note = await Note.createNote(user.id, {
-        title
-    })
+    const noteParams = {
+        u_id: user.id,
+        title: title
+    }
+    const note = await Note.createNote(noteParams)
 
+    console.log(1)
     return res.send(API.RESULT(API.CODE.SUCCESS, {
         id: note.id,
         title: note.title
     }))
-
 })
 
 router.get('/', auth.ensureAuthorized, async (req, res) => {
@@ -37,6 +39,44 @@ router.get('/', auth.ensureAuthorized, async (req, res) => {
     return res.send(API.RESULT(API.CODE.SUCCESS, {
         notes: notes
     }))
+})
+
+router.get('/:noteId', auth.ensureAuthorized, async (req, res) => {
+    const user = req.user
+    const noteId = req.params.noteId
+
+    const noteParams = {
+        u_id: user.id,
+        id: noteId
+    }
+
+    const note = await Note.get(noteParams)
+
+    if (!note) {
+        return res.send(API.RESULT(API.CODE.NOT_FOUND, {
+            msg: 'Note not found.'
+        }))
+    }
+
+    return res.send(API.RESULT(API.CODE.SUCCESS, note))
+})
+
+router.put('/:noteId', auth.ensureAuthorized, async (req, res) => {
+    const user = req.user
+    const noteId = req.params.noteId
+
+    const { title } = req.body
+
+    const noteParams = {
+        u_id: user.id,
+        id: noteId,
+        title: title
+    }
+    await Note.update(noteParams)
+
+    const note = await Note.get(noteParams)
+
+    return res.send(API.RESULT(API.CODE.SUCCESS, note))
 })
 
 router.delete('/:noteId', auth.ensureAuthorized, async (req, res) => {
