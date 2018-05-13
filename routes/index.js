@@ -8,11 +8,11 @@ const auth = require('../lib/auth')
 const TRAVLOG_SECRET = 'travlog-secret'
 const fbGraph = require('fbgraph')
 const googleapis = require('googleapis')
-const config = require('../config/dev')
 
 const oAuth2Client = new googleapis.google.auth.OAuth2(
-    config.google.clientId,
-    config.google.clientSecret
+    global.config.google.clientId,
+    global.config.google.clientSecret,
+    ''
 )
 
 async function signUpWithSNS(userId, name, email, profilePicture, provider) {
