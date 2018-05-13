@@ -12,7 +12,8 @@ const config = require('../config/dev')
 
 const oAuth2Client = new googleapis.google.auth.OAuth2(
     config.google.clientId,
-    config.google.clientSecret
+    config.google.clientSecret,
+    ''
 )
 
 async function signUpWithSNS(userId, name, email, profilePicture, provider) {
