@@ -37,7 +37,7 @@ router.get('/', auth.ensureAuthorized, async (req, res) => {
     const notes = await Note.getList(user.id)
 
     return res.send(API.RESULT(API.CODE.SUCCESS, {
-        notes: notes
+        list: notes
     }))
 })
 
