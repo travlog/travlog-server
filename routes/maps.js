@@ -29,7 +29,7 @@ router.get('/', async (req, res) => {
             console.log(JSON.stringify(response.json.predictions, null, 2))
 
             res.send(API.RESULT(API.CODE.SUCCESS, {
-                predictions: response.json.predictions
+                list: response.json.predictions
             }))
         }
     })
