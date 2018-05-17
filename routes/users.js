@@ -129,7 +129,7 @@ router.put('/:userId/link', auth.ensureAuthorized, async (req, res) => {
           const accounts = await User.getLinkedAccounts(u_id)
 
           return res.send(API.RESULT(API.CODE.SUCCESS, {
-            accounts: accounts
+            list: accounts
           }))
         }
       }
