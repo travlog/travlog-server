@@ -2,6 +2,7 @@
 module.exports = (sequelize, DataTypes) => {
   var User = sequelize.define('User', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    uid: { type: DataTypes.STRING, primaryKey: true },
     userId: DataTypes.STRING,
     password: DataTypes.STRING,
     name: DataTypes.STRING,
@@ -14,8 +15,8 @@ module.exports = (sequelize, DataTypes) => {
   }, {})
   User.associate = function (models) {
     // associations can be defined here
-    models.User.hasMany(models.Note, { foreignKey: 'id' }),
-      models.User.hasMany(models.Account, { foreignKey: 'u_id' })
+    models.User.hasMany(models.Note, { foreignKey: 'uid', sourceKey: 'uid' }),
+      models.User.hasMany(models.Account, { foreignKey: 'uid', sourceKey: 'uid' })
   }
   return User
 }

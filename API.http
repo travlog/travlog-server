@@ -1,0 +1,28 @@
+@ENDPOINT = http://localhost:3000/api
+
+### sign up with email
+POST {{ENDPOINT}}/signup HTTP/1.1
+Content-Type: application/json
+
+{
+    "email":"fobidlim@gmail.com",
+    "password":"123456"
+}
+
+### sign in with email
+POST {{ENDPOINT}}/signin HTTP/1.1
+Content-Type: application/json
+
+{
+    "loginId":"fobidlim@gmail.com",
+    "password":"123456"
+}
+
+### sign in with username
+POST {{ENDPOINT}}/signin HTTP/1.1
+Content-Type: application/json
+
+{
+    "loginId":"fobidlim",
+    "password":"123456"
+}

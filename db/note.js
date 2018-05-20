@@ -4,11 +4,11 @@ exports.createNote = (note) => {
     return models.Note.create(note)
 }
 
-exports.getList = (u_id) => {
+exports.getList = (uid) => {
     return models.Note.findAll({
         attributes: ['id', 'title', 'memo'],
         where: {
-            u_id: u_id,
+            uid,
             isDrop: false
         }
     })
@@ -18,7 +18,7 @@ exports.get = (note) => {
     return models.Note.find({
         attributes: ['id', 'title', 'memo'],
         where: {
-            u_id: note.u_id,
+            uid: note.uid,
             id: note.id,
             isDrop: false
         }
@@ -29,20 +29,20 @@ exports.update = (note) => {
     return models.Note.update(note,
         {
             where: {
-                u_id: note.u_id,
+                uid: note.uid,
                 id: note.id
             }
         })
 }
 
-exports.delete = (u_id, noteId) => {
+exports.delete = (uid, noteId) => {
     return models.Note.update({
         dropAt: new Date(),
         isDrop: true
     },
         {
             where: {
-                u_id: u_id,
+                uid: uid,
                 id: noteId
             }
         })

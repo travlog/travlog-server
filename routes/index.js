@@ -20,45 +20,39 @@ async function signUpWithSNS(userId, name, email, profilePicture, provider) {
         userId, name, profilePicture
     })
 
-    const u_id = user.id
+    const uid = user.uid
 
     const account = await User.createAccount({
-        email, userId, provider, name, profilePicture, u_id
+        email, userId, provider, name, profilePicture, uid
     })
 
     return { user, account }
 }
 
 function authorize(userId, provider, cb) {
-    console.log('authorize: userId? ' + userId + ', provider? ' + provider)
+    if (!userId || !provider) {
+        cb(new Error('uid and provider is required'), null)
+    }
     jwt.sign({
-        id: userId,
-        provider: provider
+        userId, provider
     },
         TRAVLOG_SECRET,
         (err, token) => {
             if (err) {
-                console.log('authorize: err? ' + err)
                 cb(err, null)
             } else {
-                console.log('authorize: token? ' + token)
                 cb(null, token)
             }
         })
 }
 
-/* GET home page. */
-router.get('/', (req, res, next) => {
-    res.send(API.RESULT(API.CODE.SUCCESS, {
-        coin: 'gazuaaaaaaaaaa'
-    }))
-})
-
+/**
+ * 이메일 회원가입
+ */
 router.post('/signup', async (req, res) => {
     const email = req.body.email
     let password = req.body.password
 
-    // 이메일 가입
     if (!email || !password) {
         return res.send(API.RESULT(API.CODE.NOT_FOUND, {
             msg: 'Failed to sign up with Email & Password.'
@@ -66,103 +60,92 @@ router.post('/signup', async (req, res) => {
     }
 
     const provider = 'travlog'
-    let user
-    let account
 
-    // 이메일 회원 가입
-    if (await User.getAccountByEmail(email, provider)) {
-
-        // 이메일 중복
-        return res.send(API.RESULT(API.CODE.ERROR.DUPLICATED, {
-            msg: 'Email already exists.'
-        }))
-    } else {
-        const userId = await User.generateUserId()
-
-        console.log('generateUserId? ' + userId)
-
-        user = await User.createUser({
-            userId, password
-        })
-
-        console.log('createUser? ' + JSON.stringify(user))
-
-        const u_id = user.id
-
-        account = await User.createAccount({
-            email, userId, provider, u_id
-        })
-
-        console.log('createAccount? ' + JSON.stringify(account))
-    }
-
-    authorize(user.userId, account.provider, (err, token) => {
-        if (err) {
-            res.send(API.RESULT(API.CODE.ERROR, {
-                msg: 'hi'
+    try {
+        if (await User.getAccountByEmail(email, provider)) {
+            // 이메일 중복
+            return res.send(API.RESULT(API.CODE.ERROR.DUPLICATED, {
+                msg: 'Email already exists.'
             }))
         } else {
-            res.send(API.RESULT(API.CODE.SUCCESS, {
-                user: {
-                    userId: user.userId,
-                    name: user.name,
-                    username: user.username,
-                    profilePicture: user.profilePicture
-                },
-                accessToken: token
-            }))
+            const user = await User.createUser({
+                password
+            })
+
+            const uid = user.uid
+            const userId = user.userId
+
+            const account = await User.createAccount({
+                uid, userId, email, provider
+            })
+
+            authorize(user.userId, account.provider, (err, token) => {
+                if (err) {
+                    console.error(err)
+                    res.send(API.RESULT(API.CODE.ERROR))
+                } else {
+                    res.send(API.RESULT(API.CODE.SUCCESS, {
+                        user: {
+                            uid: user.uid,
+                            name: user.name,
+                            username: user.username,
+                            profilePicture: user.profilePicture
+                        },
+                        accessToken: token
+                    }))
+                }
+            })
         }
-    })
+    } catch (e) {
+        console.error(e)
+        return res.send(API.RESULT(API.CODE.ERROR))
+    }
 })
 
+/**
+ * password 로그인
+ */
 router.post('/signin', async (req, res, next) => {
-    const loginId = req.body.loginId
-    let password = req.body.password
+    const { loginId, password } = req.body;
 
-    // 이메일 || username 로그인
     if (!loginId || !password) {
         return res.send(API.RESULT(API.CODE.NOT_FOUND, {
             msg: 'Failed to sign in with password.'
         }))
     }
 
-    let user
-    let account
+    try {
+        const user = await User.getUserByLoginIdAndPassword(loginId, password)
 
-    // 이메일 로그인
-    user = await User.getUserByEmailAndPassword(loginId, password)
-
-    if (!user) {
-        user = await User.getUserByUsernameAndPassword(loginId, password)
-    }
-
-    console.log('getUserByLoginIdAndPassword? ' + JSON.stringify(user))
-
-    if (!user) {
-        return res.send(API.RESULT(API.CODE.NOT_FOUND, {
-            msg: 'Failed to sign in with password.'
-        }))
-    }
-
-    account = await User.getAccountByUserId(user.userId)
-
-    authorize(user.userId, account.provider, (err, token) => {
-        if (err) {
-            res.send(API.RESULT(API.CODE.ERROR, {
-                msg: 'hi'
-            }))
-        } else {
-            res.send(API.RESULT(API.CODE.SUCCESS, {
-                user: {
-                    userId: user.userId,
-                    name: user.name,
-                    username: user.username,
-                    profilePicture: user.profilePicture
-                },
-                accessToken: token
+        if (!user) {
+            return res.send(API.RESULT(API.CODE.NOT_FOUND, {
+                msg: 'Failed to sign in with password.'
             }))
         }
-    })
+
+        const account = await User.getAccountByUserId(user.userId)
+
+        authorize(user.userId, account.provider, (err, token) => {
+            if (err) {
+                res.send(API.RESULT(API.CODE.ERROR.DEFAULT, {
+                    msg: 'hi'
+                }))
+            } else {
+                res.send(API.RESULT(API.CODE.SUCCESS, {
+                    user: {
+                        userId: user.userId,
+                        name: user.name,
+                        username: user.username,
+                        profilePicture: user.profilePicture
+                    },
+                    accessToken: token
+                }))
+            }
+        })
+    } catch (e) {
+        console.error(e)
+        return res.send(API.RESULT(API.CODE.ERROR.DEFAULT))
+    }
 })
 
 router.post('/oauth', async (req, res) => {
@@ -174,21 +157,15 @@ router.post('/oauth', async (req, res) => {
         }))
     }
 
-    let userId
-    let profilePicture
-    let email
-    let name
-
     new Promise(resolve => {
         if (provider == 'facebook') {
             fbGraph.setAccessToken(token)
 
             fbGraph.get('me?fields=email,name,picture', (err, res) => {
                 if (err) {
-                    console.log(err)
+                    console.error(err)
+                    resolve(null)
                 } else {
-                    console.log(res)
-
                     resolve({
                         userId: res.id,
                         profilePicture: res.picture.data.url,
@@ -206,7 +183,6 @@ router.post('/oauth', async (req, res) => {
                     resolve(null)
                 } else {
                     const payload = res.payload
-                    console.log('payload? ' + JSON.stringify(payload))
 
                     resolve({
                         userId: payload.sub,
@@ -216,50 +192,42 @@ router.post('/oauth', async (req, res) => {
                     })
                 }
             })
+        }
+    }).then(async result => {
+        if (!result) {
+            return res.send(API.RESULT(API.CODE.ERROR.DEFAULT))
         } else {
-            resolve(null)
+            ({ userId, profilePicture, email, name } = result)
+
+            let user = await User.getUserByUserId(userId)
+            let account
+
+            if (!user) {
+                ({ user, account } = await signUpWithSNS(userId, name, email, profilePicture, provider))
+            } else {
+                await User.updateUserId(user.uid, userId)
+            }
+
+            account = await User.getAccountByUserId(userId)
+
+            authorize(userId, account.provider, (err, token) => {
+                if (err) {
+                    console.error(err)
+                    return res.send(API.RESULT(API.CODE.ERROR.DEFAULT))
+                } else {
+                    return res.send(API.RESULT(API.CODE.SUCCESS, {
+                        user: {
+                            userId: user.userId,
+                            name: user.name,
+                            username: user.username,
+                            profilePicture: user.profilePicture
+                        },
+                        accessToken: token
+                    }))
+                }
+            })
         }
     })
-        .then(async result => {
-            if (!result) {
-                return res.send(API.RESULT(API.CODE.ERROR, {
-                    msg: 'nono'
-                }))
-            } else {
-                ({ userId, profilePicture, email, name } = result)
-
-                let user = await User.getUserByUserId(userId)
-                let account
-
-                if (!user) {
-                    ({ user, account } = await signUpWithSNS(userId, name, email, profilePicture, provider))
-                } else {
-                    await User.updateUserId(user.id, userId)
-                }
-
-                account = await User.getAccountByUserId(userId)
-
-                console.log('getAccountByUserId? ' + JSON.stringify(account))
-
-                authorize(userId, account.provider, (err, token) => {
-                    if (err) {
-                        return res.send(API.RESULT(API.CODE.ERROR, {
-                            msg: 'hi'
-                        }))
-                    } else {
-                        return res.send(API.RESULT(API.CODE.SUCCESS, {
-                            user: {
-                                userId: user.userId,
-                                name: user.name,
-                                username: user.username,
-                                profilePicture: user.profilePicture
-                            },
-                            accessToken: token
-                        }))
-                    }
-                })
-            }
-        })
 })
 
 module.exports = router

@@ -8,11 +8,11 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       autoIncrement: true
     },
-    u_id: {
+    uid: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: models.User, key: 'id'
+        model: models.User, key: 'uid'
       }
     },
     title: DataTypes.STRING,

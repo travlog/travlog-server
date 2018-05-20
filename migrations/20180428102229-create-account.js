@@ -8,13 +8,20 @@ module.exports = {
                 primaryKey: true,
                 type: Sequelize.INTEGER
             },
+            uid: {
+                allowNull: false,
+                type: Sequelize.STRING
+            },
             email: {
                 type: Sequelize.STRING
             },
             userId: {
                 type: Sequelize.STRING
             },
-            type: {
+            profilePicture: {
+                type: Sequelize.STRING
+            },
+            provider: {
                 type: Sequelize.STRING
             },
             isDrop: {

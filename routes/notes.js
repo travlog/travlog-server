@@ -19,12 +19,11 @@ router.post('/', auth.ensureAuthorized, async (req, res) => {
     }
 
     const noteParams = {
-        u_id: user.id,
+        uid: user.uid,
         title: title
     }
     const note = await Note.createNote(noteParams)
 
-    console.log(1)
     return res.send(API.RESULT(API.CODE.SUCCESS, {
         id: note.id,
         title: note.title
@@ -34,7 +33,7 @@ router.post('/', auth.ensureAuthorized, async (req, res) => {
 router.get('/', auth.ensureAuthorized, async (req, res) => {
     const user = req.user
 
-    const notes = await Note.getList(user.id)
+    const notes = await Note.getList(user.uid)
 
     return res.send(API.RESULT(API.CODE.SUCCESS, {
         list: notes
@@ -46,7 +45,7 @@ router.get('/:noteId', auth.ensureAuthorized, async (req, res) => {
     const noteId = req.params.noteId
 
     const noteParams = {
-        u_id: user.id,
+        uid: user.id,
         id: noteId
     }
 
@@ -68,7 +67,7 @@ router.put('/:noteId', auth.ensureAuthorized, async (req, res) => {
     const { title } = req.body
 
     const noteParams = {
-        u_id: user.id,
+        uid: user.id,
         id: noteId,
         title: title
     }

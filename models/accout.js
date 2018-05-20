@@ -3,11 +3,16 @@ const models = require('../models')
 
 module.exports = (sequelize, DataTypes) => {
     var Account = sequelize.define('Account', {
-        u_id: {
+        id: {
             type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true
+        },
+        uid: {
+            type: DataTypes.STRING,
             allowNull: false,
             references: {
-                model: models.User, key: 'id'
+                model: models.User, key: 'uid'
             }
         },
         email: DataTypes.STRING,
@@ -19,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
         dropAt: DataTypes.DATE
     }, {})
     Account.associate = function (models) {
-        models.Account.belongsTo(models.User, { foreignKey: 'u_id' })
+        models.Account.belongsTo(models.User, { foreignKey: 'uid', sourceKey: 'uid' })
     }
     return Account
 }
