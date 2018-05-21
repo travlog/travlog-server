@@ -40,3 +40,11 @@ Authorization: {{AUTHORIZATION}}
 ### get note
 GET {{ENDPOINT}}/notes/n_f7e035d0-5d16-11e8-9c1c-d7b78a60b991 HTTP/1.1
 Authorization: {{AUTHORIZATION}}
+
+### get notes
+GET {{ENDPOINT}}/notes HTTP/1.1
+Authorization: {{AUTHORIZATION}}
+
+### delete note
+DELETE {{ENDPOINT}}/notes/n_f7e035d0-5d16-11e8-9c1c-d7b78a60b991 HTTP/1.1
+Authorization: {{AUTHORIZATION}}

@@ -31,7 +31,11 @@ exports.createNote = async (note) => {
     return models.Note.create(note)
 }
 
-exports.getList = (uid) => {
+/**
+ * uid가 일치하는 note 목록을 가져옵니다.
+ * @param {*} uid 
+ */
+exports.getListByUid = (uid) => {
     return models.Note.findAll({
         attributes: ['nid', 'title', 'memo'],
         where: {
@@ -41,27 +45,39 @@ exports.getList = (uid) => {
     })
 }
 
-exports.get = (note) => {
+/**
+ * uid와 nid가 일치하는 한 개의 note를 가져옵니다.
+ * @param {*} uid 
+ * @param {*} nid 
+ */
+exports.getItem = (uid, nid) => {
     return models.Note.find({
         attributes: ['nid', 'title', 'memo'],
         where: {
-            uid: note.uid,
-            nid: note.nid,
+            uid, nid,
             isDrop: false
         }
     })
 }
 
+/**
+ * note를 수정합니다.
+ * @param {*} note 
+ */
 exports.update = (note) => {
-    return models.Note.update(note,
-        {
-            where: {
-                uid: note.uid,
-                nid: note.nid
-            }
-        })
+    return models.Note.update(note, {
+        where: {
+            uid: note.uid,
+            nid: note.nid
+        }
+    })
 }
 
+/**
+ * note를 삭제합니다.
+ * @param {*} uid 
+ * @param {*} nid 
+ */
 exports.delete = (uid, nid) => {
     return models.Note.update({
         dropAt: new Date(),
@@ -69,8 +85,7 @@ exports.delete = (uid, nid) => {
     },
         {
             where: {
-                uid,
-                nid
+                uid, nid
             }
         })
 }
