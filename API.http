@@ -26,3 +26,12 @@ Content-Type: application/json
     "loginId":"fobidlim",
     "password":"123456"
 }
+
+### create note
+POST {{ENDPOINT}}/notes HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxMDkxMzYyOTc1MDA1MDcwMDU0MTIiLCJwcm92aWRlciI6Imdvb2dsZSIsImlhdCI6MTUyNjgyOTY1Nn0.hmXv5kN5VHCHxRcHDUSl0MzEUZ441c5S5Ih0Y9RsA7w
+
+{
+"title":"title"
+}

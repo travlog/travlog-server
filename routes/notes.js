@@ -25,7 +25,7 @@ router.post('/', auth.ensureAuthorized, async (req, res) => {
     const note = await Note.createNote(noteParams)
 
     return res.send(API.RESULT(API.CODE.SUCCESS, {
-        id: note.id,
+        nid: note.nid,
         title: note.title
     }))
 })
