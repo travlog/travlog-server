@@ -23,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
     dropAt: DataTypes.DATE
   }, {})
   Note.associate = function (models) {
-    // associations can be defined here
+    models.Note.belongsTo(models.User, { foreignKey: 'uid', sourceKey: 'uid' })
   }
   return Note
 }
