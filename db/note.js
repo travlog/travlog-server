@@ -6,7 +6,7 @@ const uuidv1 = require('uuid/v1')
  * @return {nid} nid
  */
 function generateNid() {
-    const nid = `u/${uuidv1()}`
+    const nid = `n_${uuidv1()}`
 
     return models.Note.find({
         attributes: ['nid'],
@@ -22,6 +22,10 @@ function generateNid() {
     })
 }
 
+/**
+ * note를 생성합니다.
+ * @param {*} note 
+ */
 exports.createNote = async (note) => {
     note.nid = await generateNid()
     return models.Note.create(note)

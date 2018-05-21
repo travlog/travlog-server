@@ -10,8 +10,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     nid: {
       type: DataTypes.STRING,
-      allowNull: false,
-      unique: true
+      primaryKey: true
     },
     uid: {
       type: DataTypes.STRING,

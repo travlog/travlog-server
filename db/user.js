@@ -7,7 +7,7 @@ const bcrypt = require('bcryptjs')
  * @return {uid} uid
  */
 function generateUid() {
-    const uid = `u/${uuidv1()}`
+    const uid = `u_${uuidv1()}`
 
     return models.User.find({
         attributes: ['uid'],
@@ -71,7 +71,7 @@ exports.createUser = async (user) => {
 }
 
 /**
- * 새로운 Account을 생성합니다.
+ * Account을 생성합니다.
  * @param {*} account 
  */
 exports.createAccount = (account) => {

@@ -1,4 +1,5 @@
 @ENDPOINT = http://localhost:3000/api
+@AUTHORIZATION = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxMDkxMzYyOTc1MDA1MDcwMDU0MTIiLCJwcm92aWRlciI6Imdvb2dsZSIsImlhdCI6MTUyNjgyOTY1Nn0.hmXv5kN5VHCHxRcHDUSl0MzEUZ441c5S5Ih0Y9RsA7w
 
 ### sign up with email
 POST {{ENDPOINT}}/signup HTTP/1.1
@@ -30,8 +31,12 @@ Content-Type: application/json
 ### create note
 POST {{ENDPOINT}}/notes HTTP/1.1
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxMDkxMzYyOTc1MDA1MDcwMDU0MTIiLCJwcm92aWRlciI6Imdvb2dsZSIsImlhdCI6MTUyNjgyOTY1Nn0.hmXv5kN5VHCHxRcHDUSl0MzEUZ441c5S5Ih0Y9RsA7w
+Authorization: {{AUTHORIZATION}}
 
 {
 "title":"title"
 }
+
+### get note
+GET {{ENDPOINT}}/notes/n_f7e035d0-5d16-11e8-9c1c-d7b78a60b991 HTTP/1.1
+Authorization: {{AUTHORIZATION}}
