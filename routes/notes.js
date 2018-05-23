@@ -10,7 +10,7 @@ const auth = require('../lib/auth')
 router.post('/', auth.ensureAuthorized, async (req, res) => {
     const uid = req.user.uid
 
-    const { title } = req.body
+    const { title, destination } = req.body
 
     if (!title) {
         return res.send(API.RESULT(API.CODE.ERROR, {
@@ -19,14 +19,15 @@ router.post('/', auth.ensureAuthorized, async (req, res) => {
     }
 
     const noteParams = {
-        uid, title
+        uid, title, destination
     }
+
     try {
-        const note = await Note.createNote(noteParams)
-        return res.send(API.RESULT(API.CODE.SUCCESS, {
-            nid: note.nid,
-            title: note.title
-        }))
+        const result = await Note.create(noteParams)
+
+        const note = await Note.getItem(uid, result.nid)
+        
+        return res.send(API.RESULT(API.CODE.SUCCESS, note))
     } catch (e) {
         console.error(e)
         return res.send(API.RESULT(API.CODE.ERROR.DEFAULT))

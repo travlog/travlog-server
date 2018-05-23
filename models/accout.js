@@ -21,6 +21,8 @@ module.exports = (sequelize, DataTypes) => {
         profilePicture: DataTypes.STRING,
         provider: DataTypes.STRING,
         isDrop: DataTypes.BOOLEAN,
+        createdAt: DataTypes.DATE,
+        updatedAt: DataTypes.DATE,
         dropAt: DataTypes.DATE
     }, {})
     Account.associate = function (models) {

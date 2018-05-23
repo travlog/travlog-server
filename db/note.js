@@ -1,5 +1,7 @@
 const models = require('../models')
 const uuidv1 = require('uuid/v1')
+const Location = require('../db/location')
+const Destination = require('../db/destination')
 
 /**
  * nid 생성합니다.
@@ -26,8 +28,24 @@ function generateNid() {
  * note를 생성합니다.
  * @param {*} note 
  */
-exports.createNote = async (note) => {
+exports.create = async (note) => {
     note.nid = await generateNid()
+
+    if (note.destination) {
+        const placeId = note.destination.placeId
+
+        let location = await Location.getItemByPlaceId(placeId)
+
+        if (!location) {
+            location = await Location.create(placeId)
+        }
+
+        note.destination.nid = note.nid
+        note.destination.lid = location.lid
+
+        const result = await Destination.create(note.destination)
+    }
+
     return models.Note.create(note)
 }
 
@@ -56,7 +74,13 @@ exports.getItem = (uid, nid) => {
         where: {
             uid, nid,
             isDrop: false
-        }
+        },
+        include: [{
+            model: models.Destination,
+            where: {
+                isDrop: false
+            }
+        }]
     })
 }
 

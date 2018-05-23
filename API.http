@@ -34,11 +34,16 @@ Content-Type: application/json
 Authorization: {{AUTHORIZATION}}
 
 {
-"title":"title"
+    "title":"title",
+    "destination":{
+        "placeId":"ChIJzWXFYYuifDUR64Pq5LTtioU",
+        "startDate":"2018-05-23 15:39:41",
+        "endDate":"2018-05-27 15:39:41"
+    }
 }
 
 ### get note
-GET {{ENDPOINT}}/notes/n_f7e035d0-5d16-11e8-9c1c-d7b78a60b991 HTTP/1.1
+GET {{ENDPOINT}}/notes/n_d1ea4650-5ea0-11e8-a82f-13f523381b3b HTTP/1.1
 Authorization: {{AUTHORIZATION}}
 
 ### get notes
@@ -48,3 +53,6 @@ Authorization: {{AUTHORIZATION}}
 ### delete note
 DELETE {{ENDPOINT}}/notes/n_f7e035d0-5d16-11e8-9c1c-d7b78a60b991 HTTP/1.1
 Authorization: {{AUTHORIZATION}}
+
+### search
+GET {{ENDPOINT}}/maps?query=서울 HTTP/1.1

@@ -71,7 +71,7 @@ exports.createUser = async (user) => {
 }
 
 /**
- * Account을 생성합니다.
+ * Account를 생성합니다.
  * @param {*} account 
  */
 exports.createAccount = (account) => {

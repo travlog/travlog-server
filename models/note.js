@@ -10,7 +10,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     nid: {
       type: DataTypes.STRING,
-      primaryKey: true
+      unique: true,
+      allowNull: false
     },
     uid: {
       type: DataTypes.STRING,
@@ -21,13 +22,14 @@ module.exports = (sequelize, DataTypes) => {
     },
     title: DataTypes.STRING,
     memo: DataTypes.STRING,
+    isDrop: DataTypes.BOOLEAN,
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,
-    isDrop: DataTypes.BOOLEAN,
     dropAt: DataTypes.DATE
   }, {})
   Note.associate = function (models) {
-    models.Note.belongsTo(models.User, { foreignKey: 'uid', sourceKey: 'uid' })
+    models.Note.belongsTo(models.User, { foreignKey: 'uid', sourceKey: 'uid' }),
+      models.Note.hasMany(models.Destination, { foreignKey: 'nid', sourceKey: 'nid' })
   }
   return Note
 }

@@ -22,13 +22,14 @@ router.get('/', async (req, res) => {
         types: '(cities)'
     }, (err, response) => {
         if (err) {
-            res.send(API.RESULT(API.CODE.ERROR, {
+            console.error(err)
+            return res.send(API.RESULT(API.CODE.ERROR.DEFAULT, {
                 msg: 'google is bad.'
             }))
         } else {
             console.log(JSON.stringify(response.json.predictions, null, 2))
 
-            res.send(API.RESULT(API.CODE.SUCCESS, {
+            return res.send(API.RESULT(API.CODE.SUCCESS, {
                 list: response.json.predictions
             }))
         }
