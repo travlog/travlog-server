@@ -43,7 +43,7 @@ Authorization: {{AUTHORIZATION}}
 }
 
 ### get note
-GET {{ENDPOINT}}/notes/n_d1ea4650-5ea0-11e8-a82f-13f523381b3b HTTP/1.1
+GET {{ENDPOINT}}/notes/n_089a4bd0-5ea3-11e8-af22-3d9d8a1db53f HTTP/1.1
 Authorization: {{AUTHORIZATION}}
 
 ### get notes

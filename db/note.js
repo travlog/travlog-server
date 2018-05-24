@@ -79,7 +79,13 @@ exports.getItem = (uid, nid) => {
             model: models.Destination,
             where: {
                 isDrop: false
-            }
+            },
+            include: [{
+                model: models.Location,
+                where: {
+                    isDrop: false
+                }
+            }]
         }]
     })
 }

@@ -1,7 +1,11 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
   var Location = sequelize.define('Location', {
-    lid: DataTypes.STRING,
+    lid: {
+      type: DataTypes.STRING,
+      unique: true,
+      allowNull: false
+    },
     locality: DataTypes.STRING,
     administrativeAreaLevel1: DataTypes.STRING,
     administrativeAreaLevel2: DataTypes.STRING,

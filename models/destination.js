@@ -35,8 +35,8 @@ module.exports = (sequelize, DataTypes) => {
     dropAt: DataTypes.DATE
   }, {});
   Destination.associate = function (models) {
-    models.Destination.belongsToMany(models.Note, { through: 'note_destination' }),
-      models.Destination.belongsTo(models.Location, { foreignKey: 'lid', sourceKey: 'lid' })
+    models.Destination.belongsTo(models.Note, { foreignKey: 'nid', targetKey: 'nid' }),
+      models.Destination.belongsTo(models.Location, { foreignKey: 'lid', targetKey: 'lid' })
   };
   return Destination;
 };

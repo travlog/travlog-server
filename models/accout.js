@@ -26,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
         dropAt: DataTypes.DATE
     }, {})
     Account.associate = function (models) {
-        models.Account.belongsTo(models.User, { foreignKey: 'uid', sourceKey: 'uid' })
+        models.Account.belongsTo(models.User, { foreignKey: 'uid', targetKey: 'uid' })
     }
     return Account
 }
