@@ -31,19 +31,25 @@ function generateNid() {
 exports.create = async (note) => {
     note.nid = await generateNid()
 
-    if (note.destination) {
-        const placeId = note.destination.placeId
+    console.log('destinations', note.Destinations)
+    if (note.Destinations) {
 
-        let location = await Location.getItemByPlaceId(placeId)
+        note.Destinations.forEach(async destination => {
+            console.log('destination', destination)
 
-        if (!location) {
-            location = await Location.create(placeId)
-        }
+            const placeId = destination.Location.placeId
 
-        note.destination.nid = note.nid
-        note.destination.lid = location.lid
+            let location = await Location.getItemByPlaceId(placeId)
 
-        const result = await Destination.create(note.destination)
+            if (!location) {
+                location = await Location.create(placeId)
+            }
+
+            destination.nid = note.nid
+            destination.lid = location.lid
+
+            await Destination.create(destination)
+        })
     }
 
     return models.Note.create(note)
