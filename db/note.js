@@ -31,16 +31,11 @@ function generateNid() {
 exports.create = async (note) => {
     note.nid = await generateNid()
 
-    console.log('destinations', note.Destinations)
     if (note.Destinations) {
-
-        note.Destinations.forEach(async destination => {
-            console.log('destination', destination)
-
+        for (let destination of note.Destinations) {
             const placeId = destination.Location.placeId
 
             let location = await Location.getItemByPlaceId(placeId)
-
             if (!location) {
                 location = await Location.create(placeId)
             }
@@ -49,7 +44,7 @@ exports.create = async (note) => {
             destination.lid = location.lid
 
             await Destination.create(destination)
-        })
+        }
     }
 
     return models.Note.create(note)

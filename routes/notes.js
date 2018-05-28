@@ -26,7 +26,7 @@ router.post('/', auth.ensureAuthorized, async (req, res) => {
         const result = await Note.create(noteParams)
 
         const note = await Note.getItem(uid, result.nid)
-        
+
         return res.send(API.RESULT(API.CODE.SUCCESS, note))
     } catch (e) {
         console.error(e)
