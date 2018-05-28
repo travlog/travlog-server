@@ -13,9 +13,9 @@ router.post('/', auth.ensureAuthorized, async (req, res) => {
     const { title, Destinations } = req.body
 
     if (!title) {
-        return res.send(API.RESULT(API.CODE.ERROR, {
+        return res.sendResult(API.CODE.ERROR, {
             msg: 'Title is required.'
-        }))
+        })
     }
 
     const noteParams = {
@@ -26,11 +26,11 @@ router.post('/', auth.ensureAuthorized, async (req, res) => {
         const result = await Note.create(noteParams)
 
         const note = await Note.getItem(uid, result.nid)
-
-        return res.send(API.RESULT(API.CODE.SUCCESS, note))
+        
+        return res.sendResult(API.CODE.SUCCESS, note)
     } catch (e) {
         console.error(e)
-        return res.send(API.RESULT(API.CODE.ERROR.DEFAULT))
+        return res.sendResult(API.CODE.ERROR.DEFAULT)
     }
 })
 
@@ -39,12 +39,12 @@ router.get('/', auth.ensureAuthorized, async (req, res) => {
 
     try {
         const notes = await Note.getListByUid(uid)
-        return res.send(API.RESULT(API.CODE.SUCCESS, {
+        return res.sendResult(API.CODE.SUCCESS, {
             list: notes
-        }))
+        })
     } catch (e) {
         console.error(e)
-        return res.send(API.RESULT(API.CODE.ERROR.DEFAULT))
+        return res.sendResult(API.CODE.ERROR.DEFAULT)
     }
 })
 
@@ -56,15 +56,15 @@ router.get('/:nid', auth.ensureAuthorized, async (req, res) => {
         const note = await Note.getItem(uid, nid)
 
         if (!note) {
-            return res.send(API.RESULT(API.CODE.NOT_FOUND, {
+            return res.sendResult(API.CODE.NOT_FOUND, {
                 msg: 'Note not found.'
-            }))
+            })
         }
 
-        return res.send(API.RESULT(API.CODE.SUCCESS, note))
+        return res.sendResult(API.CODE.SUCCESS, note)
     } catch (e) {
         console.error(e)
-        return res.send(API.RESULT(API.CODE.ERROR.DEFAULT))
+        return res.sendResult(API.CODE.ERROR.DEFAULT)
     }
 })
 
@@ -83,10 +83,10 @@ router.put('/:nid', auth.ensureAuthorized, async (req, res) => {
 
         const note = await Note.get(noteParams)
 
-        return res.send(API.RESULT(API.CODE.SUCCESS, note))
+        return res.sendResult(API.CODE.SUCCESS, note)
     } catch (e) {
         console.error(e)
-        return res.send(API.RESULT(API.CODE.ERROR.DEFAULT))
+        return res.sendResult(API.CODE.ERROR.DEFAULT)
     }
 })
 
@@ -98,20 +98,20 @@ router.delete('/:nid', auth.ensureAuthorized, async (req, res) => {
         const note = await Note.getItem(uid, nid)
 
         if (!note) {
-            return res.send(API.RESULT(API.CODE.NOT_FOUND, {
+            return res.sendResult(API.CODE.NOT_FOUND, {
                 msg: 'Note not found.'
-            }))
+            })
         }
 
         const result = await Note.delete(uid, nid)
         console.log('delete result?', result)
 
-        return res.send(API.RESULT(API.CODE.SUCCESS, {
+        return res.sendResult(API.CODE.SUCCESS, {
             nid
-        }))
+        })
     } catch (e) {
         console.error(e)
-        return res.send(API.RESULT(API.CODE.ERROR.DEFAULT))
+        return res.sendResult(API.CODE.ERROR.DEFAULT)
     }
 })
 

@@ -16,7 +16,7 @@ const oAuth2Client = new googleapis.google.auth.OAuth2(
 
 /* GET users listing. */
 router.get('/', (req, res, next) => {
-  res.send('respond with a resource')
+  res.sendResult(API.CODE.SUCCESS, 'respond with a resource')
 })
 
 router.put('/:userId', auth.ensureAuthorized, async (req, res, next) => {
@@ -27,9 +27,9 @@ router.put('/:userId', auth.ensureAuthorized, async (req, res, next) => {
 
   const user = await User.getUserByUsername(username)
 
-  return res.send(API.RESULT(API.CODE.SUCCESS, {
+  return res.sendResult(API.CODE.SUCCESS, {
     user: user
-  }))
+  })
 })
 
 router.get('/:username', async (req, res) => {
@@ -38,13 +38,13 @@ router.get('/:username', async (req, res) => {
   const user = await User.getUserByUsername(username)
 
   if (!user) {
-    return res.send(API.RESULT(API.CODE.NOT_FOUND, {
+    return res.sendResult(API.CODE.NOT_FOUND, {
       msg: 'nope'
-    }))
+    })
   }
-  return res.send(API.RESULT(API.CODE.SUCCESS, {
+  return res.sendResult(API.CODE.SUCCESS, {
     user: user
-  }))
+  })
 })
 
 router.put('/:userId/link', auth.ensureAuthorized, async (req, res) => {
@@ -52,9 +52,9 @@ router.put('/:userId/link', auth.ensureAuthorized, async (req, res) => {
   const { token, provider } = req.body
 
   if (!token || !provider) {
-    return res.send(API.RESULT(API.CODE.NOT_FOUND, {
+    return res.sendResult(API.CODE.NOT_FOUND, {
       msg: 'good bye'
-    }))
+    })
   }
 
   const user = await User.getUserByUserId(originalUserId)
@@ -109,17 +109,17 @@ router.put('/:userId/link', auth.ensureAuthorized, async (req, res) => {
   })
     .then(async result => {
       if (!result) {
-        return res.send(API.RESULT(API.CODE.ERROR, {
+        return res.sendResult(API.CODE.ERROR, {
           msg: 'nonono'
-        }))
+        })
       } else {
         ({ userId, profilePicture, email, name } = result)
 
         if (await User.checkSnsAccountDuplicated(userId, provider)) {
           // TODO: 이미 연결 된 계정인데 어떡하지...
-          return res.send(API.RESULT(API.CODE.ERROR.DUPLICATED, {
+          return res.sendResult(API.CODE.ERROR.DUPLICATED, {
             msg: 'T_T'
-          }))
+          })
         } else {
           const u_id = user.id
           const account = await User.createAccount({
@@ -128,9 +128,9 @@ router.put('/:userId/link', auth.ensureAuthorized, async (req, res) => {
 
           const accounts = await User.getLinkedAccounts(u_id)
 
-          return res.send(API.RESULT(API.CODE.SUCCESS, {
+          return res.sendResult(API.CODE.SUCCESS, {
             list: accounts
-          }))
+          })
         }
       }
     })

@@ -54,9 +54,9 @@ router.post('/signup', async (req, res) => {
     let password = req.body.password
 
     if (!email || !password) {
-        return res.send(API.RESULT(API.CODE.NOT_FOUND, {
+        return res.sendResult(API.CODE.NOT_FOUND, {
             msg: 'Failed to sign up with Email & Password.'
-        }))
+        })
     }
 
     const provider = 'travlog'
@@ -64,9 +64,9 @@ router.post('/signup', async (req, res) => {
     try {
         if (await User.getAccountByEmail(email, provider)) {
             // 이메일 중복
-            return res.send(API.RESULT(API.CODE.ERROR.DUPLICATED, {
+            return res.sendResult(API.CODE.ERROR.DUPLICATED, {
                 msg: 'Email already exists.'
-            }))
+            })
         } else {
             const user = await User.createUser({
                 password
@@ -82,9 +82,9 @@ router.post('/signup', async (req, res) => {
             authorize(user.userId, account.provider, (err, token) => {
                 if (err) {
                     console.error(err)
-                    res.send(API.RESULT(API.CODE.ERROR))
+                    return res.sendResult(API.CODE.ERROR.DEFAULT)
                 } else {
-                    res.send(API.RESULT(API.CODE.SUCCESS, {
+                    res.sendResult(API.CODE.SUCCESS, {
                         user: {
                             uid: user.uid,
                             name: user.name,
@@ -92,13 +92,14 @@ router.post('/signup', async (req, res) => {
                             profilePicture: user.profilePicture
                         },
                         accessToken: token
-                    }))
+                    })
                 }
             })
         }
     } catch (e) {
         console.error(e)
-        return res.send(API.RESULT(API.CODE.ERROR))
+        return res.sendResult(API.CODE.ERROR.DEFAULT)
+        // return res.send(API.RESULT(API.CODE.ERROR.DEFAULT))
     }
 })
 
@@ -109,29 +110,29 @@ router.post('/signin', async (req, res, next) => {
     const { loginId, password } = req.body;
 
     if (!loginId || !password) {
-        return res.send(API.RESULT(API.CODE.NOT_FOUND, {
+        return res.sendResult(API.CODE.NOT_FOUND, {
             msg: 'Failed to sign in with password.'
-        }))
+        })
     }
 
     try {
         const user = await User.getUserByLoginIdAndPassword(loginId, password)
 
         if (!user) {
-            return res.send(API.RESULT(API.CODE.NOT_FOUND, {
+            return res.sendResult(API.CODE.NOT_FOUND, {
                 msg: 'Failed to sign in with password.'
-            }))
+            })
         }
 
         const account = await User.getAccountByUserId(user.userId)
 
         authorize(user.userId, account.provider, (err, token) => {
             if (err) {
-                res.send(API.RESULT(API.CODE.ERROR.DEFAULT, {
+                res.sendResult(API.CODE.ERROR.DEFAULT, {
                     msg: 'hi'
-                }))
+                })
             } else {
-                res.send(API.RESULT(API.CODE.SUCCESS, {
+                res.sendResult(API.CODE.SUCCESS, {
                     user: {
                         userId: user.userId,
                         name: user.name,
@@ -139,12 +140,12 @@ router.post('/signin', async (req, res, next) => {
                         profilePicture: user.profilePicture
                     },
                     accessToken: token
-                }))
+                })
             }
         })
     } catch (e) {
         console.error(e)
-        return res.send(API.RESULT(API.CODE.ERROR.DEFAULT))
+        return res.sendResult(API.CODE.ERROR.DEFAULT)
     }
 })
 
@@ -152,9 +153,9 @@ router.post('/oauth', async (req, res) => {
     const { token, provider } = req.body
 
     if (!token || !provider) {
-        return res.send(API.RESULT(API.CODE.NOT_FOUND, {
+        return res.sendResult(API.CODE.NOT_FOUND, {
             msg: 'bye'
-        }))
+        })
     }
 
     new Promise(resolve => {
@@ -195,7 +196,7 @@ router.post('/oauth', async (req, res) => {
         }
     }).then(async result => {
         if (!result) {
-            return res.send(API.RESULT(API.CODE.ERROR.DEFAULT))
+            return res.sendResult(API.CODE.ERROR.DEFAULT)
         } else {
             ({ userId, profilePicture, email, name } = result)
 
@@ -213,9 +214,9 @@ router.post('/oauth', async (req, res) => {
             authorize(userId, account.provider, (err, token) => {
                 if (err) {
                     console.error(err)
-                    return res.send(API.RESULT(API.CODE.ERROR.DEFAULT))
+                    return res.sendResult(API.CODE.ERROR.DEFAULT)
                 } else {
-                    return res.send(API.RESULT(API.CODE.SUCCESS, {
+                    return res.sendResult(API.CODE.SUCCESS, {
                         user: {
                             userId: user.userId,
                             name: user.name,
@@ -223,7 +224,7 @@ router.post('/oauth', async (req, res) => {
                             profilePicture: user.profilePicture
                         },
                         accessToken: token
-                    }))
+                    })
                 }
             })
         }
