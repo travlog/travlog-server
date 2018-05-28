@@ -121,12 +121,12 @@ router.put('/:userId/link', auth.ensureAuthorized, async (req, res) => {
             msg: 'T_T'
           })
         } else {
-          const u_id = user.id
+          const uid = user.uid
           const account = await User.createAccount({
-            email, userId, provider, name, profilePicture, u_id
+            email, userId, provider, name, profilePicture, uid
           })
 
-          const accounts = await User.getLinkedAccounts(u_id)
+          const accounts = await User.getLinkedAccounts(uid)
 
           return res.sendResult(API.CODE.SUCCESS, {
             list: accounts
