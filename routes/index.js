@@ -82,7 +82,7 @@ router.post('/signup', async (req, res) => {
             authorize(user.userId, account.provider, (err, token) => {
                 if (err) {
                     console.error(err)
-                    res.send(API.RESULT(API.CODE.ERROR))
+                    res.send(API.RESULT(API.CODE.ERROR.DEFAULT))
                 } else {
                     res.send(API.RESULT(API.CODE.SUCCESS, {
                         user: {
@@ -98,7 +98,7 @@ router.post('/signup', async (req, res) => {
         }
     } catch (e) {
         console.error(e)
-        return res.send(API.RESULT(API.CODE.ERROR))
+        return res.send(API.RESULT(API.CODE.ERROR.DEFAULT))
     }
 })
 
