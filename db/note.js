@@ -36,14 +36,19 @@ exports.create = async (note) => {
             const placeId = destination.Location.placeId
 
             let location = await Location.getItemByPlaceId(placeId)
+
             if (!location) {
-                location = await Location.create(placeId)
+                await Location.create(placeId).then(result => {
+                    location = result
+                })
             }
 
-            destination.nid = note.nid
-            destination.lid = location.lid
+            if (location) {
+                destination.nid = note.nid
+                destination.lid = location.lid
 
-            await Destination.create(destination)
+                await Destination.create(destination)
+            }
         }
     }
 

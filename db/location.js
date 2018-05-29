@@ -30,51 +30,60 @@ function generateLid() {
  * @param {*} placeId placeId
  */
 exports.create = async (placeId) => {
-    const lid = await generateLid()
 
-    googleMapsClient.place({
-        placeid: placeId
-    }, (err, response) => {
-        if (err) {
-            console.error(err)
-            throw err
-        } else {
-            const result = response.json.result
-            let { locality, administrativeAreaLevel1, administrativeAreaLevel2, country } = {}
+    return new Promise(resolve => {
+        googleMapsClient.place({
+            placeid: placeId
+        }, async (err, response) => {
+            if (err) {
+                console.error(err)
+                resolve(null)
+            } else {
+                const result = response.json.result
 
-            result.address_components.forEach(component => {
-                component.types.forEach(type => {
-                    switch (type) {
-                        case 'locality':
-                            locality = component.long_name
-                            break
-                        case 'administrative_area_level_1':
-                            administrativeAreaLevel1 = component.long_name
-                            break
-                        case 'administrative_area_level_2':
-                            administrativeAreaLevel2 = component.long_name
-                            break
-                        case 'country':
-                            country = component.long_name
-                            break
-                    }
+                let { locality, administrativeAreaLevel1, administrativeAreaLevel2, country } = {}
+
+                result.address_components.forEach(component => {
+                    component.types.forEach(type => {
+                        switch (type) {
+                            case 'locality':
+                                locality = component.long_name
+                                break
+                            case 'administrative_area_level_1':
+                                administrativeAreaLevel1 = component.long_name
+                                break
+                            case 'administrative_area_level_2':
+                                administrativeAreaLevel2 = component.long_name
+                                break
+                            case 'country':
+                                country = component.long_name
+                                break
+                        }
+                    })
                 })
-            })
 
-            const address = result.formatted_address
-            const latitude = result.geometry.location.lat
-            const longitude = result.geometry.location.lng
-            const name = result.name
-            const placeId = result.place_id
-            const reference = result.reference
+                const lid = await generateLid()
+                const address = result.formatted_address
+                const latitude = result.geometry.location.lat
+                const longitude = result.geometry.location.lng
+                const name = result.name
+                const placeId = result.place_id
+                const reference = result.reference
 
-            const location = {
-                lid, locality, administrativeAreaLevel1, administrativeAreaLevel2,
-                country, address, latitude, longitude, name, placeId, reference
+                const location = {
+                    lid, locality, administrativeAreaLevel1, administrativeAreaLevel2,
+                    country, address, latitude, longitude, name, placeId, reference
+                }
+
+                resolve(await models.Location.create(location))
             }
-
-            return models.Location.create(location)
+        })
+    }).then(result => {
+        if (!result) {
+            return null
         }
+
+        return result
     })
 }
 
