@@ -1,6 +1,6 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
-  var User = sequelize.define('User', {
+  var User = sequelize.define('user', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     uid: { type: DataTypes.STRING, unique: true },
     userId: DataTypes.STRING,
@@ -14,8 +14,8 @@ module.exports = (sequelize, DataTypes) => {
     dropAt: DataTypes.DATE
   }, {})
   User.associate = function (models) {
-    models.User.hasMany(models.Account, { foreignKey: 'uid', sourceKey: 'uid' }),
-      models.User.hasMany(models.Note, { foreignKey: 'uid', sourceKey: 'uid' })
+    models.user.hasMany(models.account, { foreignKey: 'uid', sourceKey: 'uid' }),
+      models.user.hasMany(models.note, { foreignKey: 'uid', sourceKey: 'uid' })
   }
   return User
 }

@@ -10,7 +10,7 @@ const Destination = require('../db/destination')
 function generateNid() {
     const nid = `n_${uuidv1()}`
 
-    return models.Note.find({
+    return models.note.find({
         attributes: ['nid'],
         where: {
             nid
@@ -52,7 +52,7 @@ exports.create = async (note) => {
         }
     }
 
-    return models.Note.create(note)
+    return models.note.create(note)
 }
 
 /**
@@ -60,7 +60,7 @@ exports.create = async (note) => {
  * @param {*} uid 
  */
 exports.getListByUid = (uid) => {
-    return models.Note.findAll({
+    return models.note.findAll({
         attributes: ['nid', 'title', 'memo'],
         where: {
             uid,
@@ -75,19 +75,19 @@ exports.getListByUid = (uid) => {
  * @param {*} nid 
  */
 exports.getItem = (uid, nid) => {
-    return models.Note.find({
+    return models.note.find({
         attributes: ['nid', 'title', 'memo'],
         where: {
             uid, nid,
             isDrop: false
         },
         include: [{
-            model: models.Destination,
+            model: models.destination,
             where: {
                 isDrop: false
             },
             include: [{
-                model: models.Location,
+                model: models.location,
                 where: {
                     isDrop: false
                 }
@@ -101,7 +101,7 @@ exports.getItem = (uid, nid) => {
  * @param {*} note 
  */
 exports.update = (note) => {
-    return models.Note.update(note, {
+    return models.note.update(note, {
         where: {
             uid: note.uid,
             nid: note.nid
@@ -115,7 +115,7 @@ exports.update = (note) => {
  * @param {*} nid 
  */
 exports.delete = (uid, nid) => {
-    return models.Note.update({
+    return models.note.update({
         dropAt: new Date(),
         isDrop: true
     },

@@ -8,7 +8,7 @@ const uuidv1 = require('uuid/v1')
 function generateDid() {
     const did = `d_${uuidv1()}`
 
-    return models.Destination.find({
+    return models.destination.find({
         attributes: ['did'],
         where: {
             did
@@ -28,5 +28,5 @@ function generateDid() {
  */
 exports.create = async (destination) => {
     destination.did = await generateDid()
-    return models.Destination.create(destination)
+    return models.destination.create(destination)
 }

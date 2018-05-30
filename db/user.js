@@ -9,7 +9,7 @@ const bcrypt = require('bcryptjs')
 function generateUid() {
     const uid = `u_${uuidv1()}`
 
-    return models.User.find({
+    return models.user.find({
         attributes: ['uid'],
         where: {
             uid
@@ -30,7 +30,7 @@ function generateUid() {
 function generateUserId() {
     var userId = new Date().getTime().toString()
 
-    return models.User.find({
+    return models.user.find({
         attributes: ['userId'],
         where: {
             userId
@@ -61,7 +61,7 @@ exports.createUser = async (user) => {
         encryptedPassword = bcrypt.hashSync(user.password, salt)
     }
 
-    return models.User.create({
+    return models.user.create({
         uid,
         userId: user.userId,
         password: encryptedPassword,
@@ -75,7 +75,7 @@ exports.createUser = async (user) => {
  * @param {*} account 
  */
 exports.createAccount = (account) => {
-    return models.Account.create(account)
+    return models.account.create(account)
 }
 
 /**
@@ -83,10 +83,10 @@ exports.createAccount = (account) => {
  * @param {*} userId 
  */
 exports.getUserByUserId = (userId) => {
-    return models.User.find({
+    return models.user.find({
         attributes: ['uid', 'userId', 'name', 'username', 'profilePicture'],
         include: [{
-            model: models.Account,
+            model: models.account,
             where: {
                 userId: userId,
                 isDrop: false
@@ -102,10 +102,10 @@ exports.getUserByUserId = (userId) => {
  */
 exports.getUserByUserIdAndProvider = (userId, provider) => {
     console.log('getUserByUserIdAndProvider: ')
-    return models.User.find({
+    return models.user.find({
         attributes: ['uid', 'userId', 'name', 'username', 'profilePicture'],
         include: [{
-            model: models.Account,
+            model: models.account,
             where: {
                 userId: userId,
                 provider: provider,
@@ -121,7 +121,7 @@ exports.getUserByUserIdAndProvider = (userId, provider) => {
  * @return {*} account
  */
 exports.getAccountByUserId = (userId) => {
-    return models.Account.find({
+    return models.account.find({
         attributes: ['userId', 'provider'],
         where: {
             userId, userId,
@@ -136,7 +136,7 @@ exports.getAccountByUserId = (userId) => {
  * @param {*} provider 
  */
 exports.getAccountByEmail = (email, provider) => {
-    return models.Account.find({
+    return models.account.find({
         where: {
             email: email,
             provider: provider,
@@ -151,7 +151,7 @@ exports.getAccountByEmail = (email, provider) => {
  * @param {*} provider 
  */
 exports.checkSnsAccountDuplicated = (userId, provider) => {
-    return models.Account.find({
+    return models.account.find({
         where: {
             userId: userId,
             provider: provider,
@@ -168,14 +168,14 @@ exports.checkSnsAccountDuplicated = (userId, provider) => {
  */
 async function getUserByEmailAndPassword(email, password) {
     console.log('getUserByEmailAndPassword: ')
-    let user = await models.User.find({
+    let user = await models.user.find({
         attributes: ['uid', 'userId', 'name', 'username', 'profilePicture', 'password'],
         where: {
             isDrop: false
         },
         include: [
             {
-                model: models.Account,
+                model: models.account,
                 where: {
                     email,
                     provider: 'travlog',
@@ -197,7 +197,7 @@ async function getUserByEmailAndPassword(email, password) {
  */
 function getUserByUsernameAndPassword(username, password) {
     console.log('getUserByUsernameAndPassword: ')
-    return models.User.find({
+    return models.user.find({
         attributes: ['uid', 'userId', 'name', 'username', 'profilePicture'],
         where: {
             username: username,
@@ -215,7 +215,7 @@ function getUserByUsernameAndPassword(username, password) {
 exports.updateUsername = (userId, username) => {
     console.log('updateUsername: ' + userId + ', ' + username)
 
-    return models.User.update({
+    return models.user.update({
         username: username
     },
         {
@@ -232,7 +232,7 @@ exports.updateUsername = (userId, username) => {
  * @param {*} username 
  */
 exports.getUserByUsername = (username) => {
-    return models.User.find({
+    return models.user.find({
         attributes: ['uid', 'name', 'username', 'profilePicture'],
         where: {
             username: username,
@@ -246,7 +246,7 @@ exports.getUserByUsername = (username) => {
  * @param {*} uid 
  */
 exports.getLinkedAccounts = (uid) => {
-    return models.Account.findAll({
+    return models.account.findAll({
         attributes: ['userId', 'email', 'name', 'profilePicture', 'provider'],
         where: {
             uid,
@@ -256,7 +256,7 @@ exports.getLinkedAccounts = (uid) => {
 }
 
 exports.updateUserId = (uid, userId) => {
-    return models.User.update({
+    return models.user.update({
         userId
     },
         {

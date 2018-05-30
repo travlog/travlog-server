@@ -2,7 +2,7 @@
 const models = require('../models')
 
 module.exports = (sequelize, DataTypes) => {
-  var Note = sequelize.define('Note', {
+  var Note = sequelize.define('note', {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
       references: {
-        model: models.User, key: 'uid'
+        model: models.user, key: 'uid'
       }
     },
     title: DataTypes.STRING,
@@ -28,8 +28,8 @@ module.exports = (sequelize, DataTypes) => {
     dropAt: DataTypes.DATE
   }, {})
   Note.associate = function (models) {
-    models.Note.belongsTo(models.User, { foreignKey: 'uid', sourceKey: 'uid' }),
-      models.Note.hasMany(models.Destination, { foreignKey: 'nid', sourceKey: 'nid' })
+    models.note.belongsTo(models.user, { foreignKey: 'uid', sourceKey: 'uid' }),
+      models.note.hasMany(models.destination, { foreignKey: 'nid', sourceKey: 'nid' })
   }
   return Note
 }

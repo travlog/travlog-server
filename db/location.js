@@ -75,7 +75,7 @@ exports.create = async (placeId) => {
                     country, address, latitude, longitude, name, placeId, reference
                 }
 
-                resolve(await models.Location.create(location))
+                resolve(await models.location.create(location))
             }
         })
     }).then(result => {
@@ -92,7 +92,7 @@ exports.create = async (placeId) => {
  * @param {*} lid lid
  */
 exports.getItem = (lid) => {
-    return models.Location.find({
+    return models.location.find({
         where: {
             lid
         }
@@ -104,7 +104,7 @@ exports.getItem = (lid) => {
  * @param {*} placeId placeId
  */
 exports.getItemByPlaceId = (placeId) => {
-    return models.Location.find({
+    return models.location.find({
         where: {
             placeId
         }

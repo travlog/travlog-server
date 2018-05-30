@@ -2,7 +2,7 @@
 const models = require('../models')
 
 module.exports = (sequelize, DataTypes) => {
-  var Destination = sequelize.define('Destination', {
+  var Destination = sequelize.define('destination', {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
@@ -17,14 +17,14 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
       references: {
-        model: models.Note, key: 'nid'
+        model: models.note, key: 'nid'
       }
     },
     lid: {
       type: DataTypes.STRING,
       allowNull: false,
       references: {
-        model: models.Location, key: 'lid'
+        model: models.location, key: 'lid'
       }
     },
     startDate: DataTypes.DATE,
@@ -35,8 +35,8 @@ module.exports = (sequelize, DataTypes) => {
     dropAt: DataTypes.DATE
   }, {});
   Destination.associate = function (models) {
-    models.Destination.belongsTo(models.Note, { foreignKey: 'nid', targetKey: 'nid' }),
-      models.Destination.belongsTo(models.Location, { foreignKey: 'lid', targetKey: 'lid' })
+    models.destination.belongsTo(models.note, { foreignKey: 'nid', targetKey: 'nid' }),
+      models.destination.belongsTo(models.location, { foreignKey: 'lid', targetKey: 'lid' })
   };
   return Destination;
 };

@@ -2,7 +2,7 @@
 const models = require('../models')
 
 module.exports = (sequelize, DataTypes) => {
-    var Account = sequelize.define('Account', {
+    var Account = sequelize.define('account', {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
@@ -26,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
         dropAt: DataTypes.DATE
     }, {})
     Account.associate = function (models) {
-        models.Account.belongsTo(models.User, { foreignKey: 'uid', targetKey: 'uid' })
+        models.account.belongsTo(models.user, { foreignKey: 'uid', targetKey: 'uid' })
     }
     return Account
 }
