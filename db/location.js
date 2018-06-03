@@ -11,7 +11,7 @@ const googleMapsClient = require('@google/maps').createClient({
 function generateLid() {
     const lid = `l_${uuidv1()}`
 
-    return models.Location.find({
+    return models.location.find({
         attributes: ['lid'],
         where: {
             lid

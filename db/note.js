@@ -31,9 +31,10 @@ function generateNid() {
 exports.create = async (note) => {
     note.nid = await generateNid()
 
-    if (note.Destinations) {
-        for (let destination of note.Destinations) {
-            const placeId = destination.Location.placeId
+    if (note.destinations) {
+        for (let destination of note.destinations) {
+            console.log('destination => ', destination)
+            const placeId = destination.location.placeId
 
             let location = await Location.getItemByPlaceId(placeId)
 
