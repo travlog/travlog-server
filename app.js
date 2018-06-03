@@ -5,10 +5,12 @@ const express = require('express')
 const path = require('path')
 const cookieParser = require('cookie-parser')
 const logger = require('morgan')
+const middleware = require('./routes/middleware')
 
 const indexRouter = require('./routes/index')
 const usersRouter = require('./routes/users')
 const notesRouter = require('./routes/notes')
+const mapsRouter = require('./routes/maps')
 
 const app = express()
 
@@ -30,9 +32,14 @@ app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 app.use(express.static(path.join(__dirname, 'public')))
 
+// middleware
+app.use(middleware.common)
+
+// api
 app.use('/api/', indexRouter)
 app.use('/api/users', usersRouter)
 app.use('/api/notes', notesRouter)
+app.use('/api/maps', mapsRouter)
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

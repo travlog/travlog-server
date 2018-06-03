@@ -7,6 +7,7 @@ module.exports = {
     },
     google: {
         clientId: '561274576099-8ch4jjvg2ghsgffc8k57r6inb0bgeip3.apps.googleusercontent.com',
-        clientSecret: '9JpaBDBVL_x2vPWBB2V7Hhob'
+        clientSecret: '9JpaBDBVL_x2vPWBB2V7Hhob',
+        apiKey: 'AIzaSyCYy28Faogk5bzw0IEw4nrtRhGjEVxbKNk'
     }
 }

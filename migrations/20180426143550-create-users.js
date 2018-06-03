@@ -8,7 +8,15 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
+      uid: {
+        allowNull: false,
+        unique: true,
+        type: Sequelize.STRING
+      },
       userId: {
+        type: Sequelize.STRING
+      },
+      username: {
         type: Sequelize.STRING
       },
       password: {
@@ -17,18 +25,12 @@ module.exports = {
       name: {
         type: Sequelize.STRING
       },
+      profilePicture: {
+        type: Sequelize.STRING
+      },
       isDrop: {
         type: Sequelize.BOOLEAN,
         defaultValue: false
-      },
-      createdDate: {
-        type: Sequelize.DATE
-      },
-      updatedDate: {
-        type: Sequelize.DATE
-      },
-      dropDate: {
-        type: Sequelize.DATE
       },
       createdAt: {
         allowNull: false,
@@ -36,6 +38,9 @@ module.exports = {
       },
       updatedAt: {
         allowNull: false,
+        type: Sequelize.DATE
+      },
+      dropAt: {
         type: Sequelize.DATE
       }
     });

@@ -8,13 +8,23 @@ module.exports = {
                 primaryKey: true,
                 type: Sequelize.INTEGER
             },
-            email: {
+            uid: {
+                allowNull: false,
                 type: Sequelize.STRING
             },
             userId: {
                 type: Sequelize.STRING
             },
-            type: {
+            name: {
+                type: Sequelize.STRING
+            },
+            email: {
+                type: Sequelize.STRING
+            },
+            profilePicture: {
+                type: Sequelize.STRING
+            },
+            provider: {
                 type: Sequelize.STRING
             },
             isDrop: {
@@ -35,6 +45,6 @@ module.exports = {
         });
     },
     down: (queryInterface, Sequelize) => {
-        return queryInterface.dropTable('Account');
+        return queryInterface.dropTable('Accounts');
     }
 };

@@ -1,0 +1,58 @@
+@ENDPOINT = http://localhost:3000/api
+@AUTHORIZATION = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxMDkxMzYyOTc1MDA1MDcwMDU0MTIiLCJwcm92aWRlciI6Imdvb2dsZSIsImlhdCI6MTUyNjgyOTY1Nn0.hmXv5kN5VHCHxRcHDUSl0MzEUZ441c5S5Ih0Y9RsA7w
+
+### sign up with email
+POST {{ENDPOINT}}/signup HTTP/1.1
+Content-Type: application/json
+
+{
+    "email":"fobidlim@gmail.com",
+    "password":"123456"
+}
+
+### sign in with email
+POST {{ENDPOINT}}/signin HTTP/1.1
+Content-Type: application/json
+
+{
+    "loginId":"fobidlim@gmail.com",
+    "password":"123456"
+}
+
+### sign in with username
+POST {{ENDPOINT}}/signin HTTP/1.1
+Content-Type: application/json
+
+{
+    "loginId":"fobidlim",
+    "password":"123456"
+}
+
+### create note
+POST {{ENDPOINT}}/notes HTTP/1.1
+Content-Type: application/json
+Authorization: {{AUTHORIZATION}}
+
+{
+    "title":"title",
+    "destination":{
+        "placeId":"ChIJzWXFYYuifDUR64Pq5LTtioU",
+        "startDate":"2018-05-23 15:39:41",
+        "endDate":"2018-05-27 15:39:41"
+    }
+}
+
+### get note
+GET {{ENDPOINT}}/notes/n_089a4bd0-5ea3-11e8-af22-3d9d8a1db53f HTTP/1.1
+Authorization: {{AUTHORIZATION}}
+
+### get notes
+GET {{ENDPOINT}}/notes HTTP/1.1
+Authorization: {{AUTHORIZATION}}
+
+### delete note
+DELETE {{ENDPOINT}}/notes/n_f7e035d0-5d16-11e8-9c1c-d7b78a60b991 HTTP/1.1
+Authorization: {{AUTHORIZATION}}
+
+### search
+GET {{ENDPOINT}}/maps?query=서울 HTTP/1.1

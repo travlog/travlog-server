@@ -2,12 +2,17 @@
 const models = require('../models')
 
 module.exports = (sequelize, DataTypes) => {
-    var Account = sequelize.define('Account', {
-        u_id: {
+    var Account = sequelize.define('account', {
+        id: {
             type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true
+        },
+        uid: {
+            type: DataTypes.STRING,
             allowNull: false,
             references: {
-                model: models.User, key: 'id'
+                model: models.User, key: 'uid'
             }
         },
         email: DataTypes.STRING,
@@ -16,10 +21,12 @@ module.exports = (sequelize, DataTypes) => {
         profilePicture: DataTypes.STRING,
         provider: DataTypes.STRING,
         isDrop: DataTypes.BOOLEAN,
+        createdAt: DataTypes.DATE,
+        updatedAt: DataTypes.DATE,
         dropAt: DataTypes.DATE
     }, {})
     Account.associate = function (models) {
-        models.Account.belongsTo(models.User, { foreignKey: 'u_id' })
+        models.account.belongsTo(models.user, { foreignKey: 'uid', targetKey: 'uid' })
     }
     return Account
 }

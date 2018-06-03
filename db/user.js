@@ -1,33 +1,68 @@
 const models = require('../models')
+const uuidv1 = require('uuid/v1')
 const bcrypt = require('bcryptjs')
 
-// User.userId 중복 검사
-exports.generateUserId = () => {
+/**
+ * uid를 생성합니다.
+ * @return {uid} uid
+ */
+function generateUid() {
+    const uid = `u_${uuidv1()}`
+
+    return models.user.find({
+        attributes: ['uid'],
+        where: {
+            uid
+        }
+    }).then(result => {
+        if (!result) {
+            return uid
+        } else {
+            return generateUid()
+        }
+    })
+}
+
+/**
+ * userId 를 생성합니다.
+ * @return {userId} userId
+ */
+function generateUserId() {
     var userId = new Date().getTime().toString()
 
-    return models.User.find({
+    return models.user.find({
         attributes: ['userId'],
         where: {
-            userId: userId
+            userId
         }
     }).then(result => {
         if (!result) {
             return userId
         } else {
-            generateUserId(new Date().getTime().toString())
+            return generateUserId()
         }
     })
 }
 
-// Create User
+/**
+ * 새로운 User를 생성합니다.
+ * @param {*} user 
+ */
 exports.createUser = async (user) => {
-    console.log('createUser: ' + JSON.stringify(user))
+    const uid = await generateUid()
 
-    const salt = bcrypt.genSaltSync(10)
-    const encryptedPassword = bcrypt.hashSync(user.password, salt)
+    if (!user.userId) {
+        user.userId = await generateUserId()
+    }
 
+    let encryptedPassword
+    if (user.password) {
+        const salt = bcrypt.genSaltSync(10)
+        encryptedPassword = bcrypt.hashSync(user.password, salt)
+    }
 
-    return models.User.create({
+    return models.user.create({
+        uid,
         userId: user.userId,
         password: encryptedPassword,
         name: user.name,
@@ -35,26 +70,23 @@ exports.createUser = async (user) => {
     })
 }
 
-// Create Account
+/**
+ * Account를 생성합니다.
+ * @param {*} account 
+ */
 exports.createAccount = (account) => {
-    console.log('createAccount: ' + JSON.stringify(account))
-
-    return models.Account.create({
-        email: account.email,
-        userId: account.userId,
-        provider: account.provider,
-        name: account.name,
-        profilePicture: account.profilePicture,
-        u_id: account.u_id
-    })
+    return models.account.create(account)
 }
 
-// Select User with userId
+/**
+ * userId가 일치하는 Account에 연결 된 한 개의 User를 가져옵니다.
+ * @param {*} userId 
+ */
 exports.getUserByUserId = (userId) => {
-    return models.User.find({
-        attributes: ['id', 'userId', 'name', 'username', 'profilePicture'],
+    return models.user.find({
+        attributes: ['uid', 'userId', 'name', 'username', 'profilePicture'],
         include: [{
-            model: models.Account,
+            model: models.account,
             where: {
                 userId: userId,
                 isDrop: false
@@ -63,11 +95,17 @@ exports.getUserByUserId = (userId) => {
     })
 }
 
+/**
+ * userId와 provider가 일치하는 Account에 연결 된 한 개의 User를 가져옵니다.
+ * @param {*} userId 
+ * @param {*} provider 
+ */
 exports.getUserByUserIdAndProvider = (userId, provider) => {
-    return models.User.find({
-        attributes: ['id', 'userId', 'name', 'username', 'profilePicture'],
+    console.log('getUserByUserIdAndProvider: ')
+    return models.user.find({
+        attributes: ['uid', 'userId', 'name', 'username', 'profilePicture'],
         include: [{
-            model: models.Account,
+            model: models.account,
             where: {
                 userId: userId,
                 provider: provider,
@@ -77,9 +115,13 @@ exports.getUserByUserIdAndProvider = (userId, provider) => {
     })
 }
 
-// Select Account with userId
+/**
+ * userId가 일치하는 한 개의 Account를 가져옵니다.
+ * @param {*} userId 
+ * @return {*} account
+ */
 exports.getAccountByUserId = (userId) => {
-    return models.Account.find({
+    return models.account.find({
         attributes: ['userId', 'provider'],
         where: {
             userId, userId,
@@ -88,9 +130,13 @@ exports.getAccountByUserId = (userId) => {
     })
 }
 
-// 이메일 계정 중복 검사
+/**
+ * email과 provider가 일치하는 한 개의 Account를 가져옵니다.
+ * @param {*} email 
+ * @param {*} provider 
+ */
 exports.getAccountByEmail = (email, provider) => {
-    return models.Account.find({
+    return models.account.find({
         where: {
             email: email,
             provider: provider,
@@ -99,9 +145,13 @@ exports.getAccountByEmail = (email, provider) => {
     })
 };
 
-// SNS 계정 중복 검사
+/**
+ * userId와 provider가 일치하는 한 개의 Account를 가져옵니다.
+ * @param {*} userId 
+ * @param {*} provider 
+ */
 exports.checkSnsAccountDuplicated = (userId, provider) => {
-    return models.Account.find({
+    return models.account.find({
         where: {
             userId: userId,
             provider: provider,
@@ -110,18 +160,24 @@ exports.checkSnsAccountDuplicated = (userId, provider) => {
     })
 }
 
-// 이메일 계정 확인
-exports.getUserByEmailAndPassword = async (email, password) => {
-    let user = await models.User.find({
-        attributes: ['id', 'userId', 'name', 'username', 'profilePicture', 'password'],
+/**
+ * email과 password가 일치하는 한 개의 User를 가져옵니다.
+ * @param {*} email 
+ * @param {*} password 
+ * @return {*} user
+ */
+async function getUserByEmailAndPassword(email, password) {
+    console.log('getUserByEmailAndPassword: ')
+    let user = await models.user.find({
+        attributes: ['uid', 'userId', 'name', 'username', 'profilePicture', 'password'],
         where: {
             isDrop: false
         },
         include: [
             {
-                model: models.Account,
+                model: models.account,
                 where: {
-                    email: email,
+                    email,
                     provider: 'travlog',
                     isDrop: false
                 }
@@ -133,9 +189,16 @@ exports.getUserByEmailAndPassword = async (email, password) => {
     return isCorrectPassword ? user : undefined;
 }
 
-exports.getUserByUsernameAndPassword = (username, password) => {
-    return models.User.find({
-        attributes: ['id', 'userId', 'name', 'username', 'profilePicture'],
+/**
+ * username과 password가 일치하는 한 개의 User를 가져옵니다.
+ * @param {*} username 
+ * @param {*} password 
+ * @return {*} user
+ */
+function getUserByUsernameAndPassword(username, password) {
+    console.log('getUserByUsernameAndPassword: ')
+    return models.user.find({
+        attributes: ['uid', 'userId', 'name', 'username', 'profilePicture'],
         where: {
             username: username,
             password: password,
@@ -144,10 +207,15 @@ exports.getUserByUsernameAndPassword = (username, password) => {
     })
 }
 
+/**
+ * username을 업데이트합니다.
+ * @param {*} userId 
+ * @param {*} username 
+ */
 exports.updateUsername = (userId, username) => {
     console.log('updateUsername: ' + userId + ', ' + username)
 
-    return models.User.update({
+    return models.user.update({
         username: username
     },
         {
@@ -159,9 +227,13 @@ exports.updateUsername = (userId, username) => {
     )
 }
 
+/**
+ * username이 일치하는 한 개의 User를 가져옵니다.
+ * @param {*} username 
+ */
 exports.getUserByUsername = (username) => {
-    return models.User.find({
-        attributes: ['id', 'name', 'username', 'profilePicture'],
+    return models.user.find({
+        attributes: ['uid', 'name', 'username', 'profilePicture'],
         where: {
             username: username,
             isDrop: false
@@ -169,24 +241,39 @@ exports.getUserByUsername = (username) => {
     })
 }
 
-exports.getLinkedAccounts = (u_id) => {
-    return models.Account.findAll({
+/**
+ * User에 연결 된 Account를 여러개 가져옵니다.
+ * @param {*} uid 
+ */
+exports.getLinkedAccounts = (uid) => {
+    return models.account.findAll({
         attributes: ['userId', 'email', 'name', 'profilePicture', 'provider'],
         where: {
-            u_id: u_id,
+            uid,
             isDrop: false
         }
     })
 }
 
-exports.updateUserId = (id, userId) => {
-    return models.User.update({
-        userId: userId
+exports.updateUserId = (uid, userId) => {
+    return models.user.update({
+        userId
     },
         {
             where: {
-                id: id,
+                uid,
                 isDrop: false
             }
         })
+}
+
+exports.getUserByLoginIdAndPassword = async (loginId, password) => {
+    console.log('getUserByLoginIdAndPassword: ')
+    let user = await getUserByEmailAndPassword(loginId, password)
+
+    if (!user) {
+        user = await getUserByUsernameAndPassword(loginId, password)
+    }
+
+    return user
 }

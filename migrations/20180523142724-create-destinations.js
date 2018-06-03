@@ -1,34 +1,35 @@
 'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('Notes', {
+    return queryInterface.createTable('Destinations', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      nid: {
+      did: {
         allowNull: false,
         unique: true,
         type: Sequelize.STRING
       },
-      uid: {
+      nid: {
         allowNull: false,
         type: Sequelize.STRING
       },
-      title: {
+      lid: {
+        allowNull: false,
         type: Sequelize.STRING
       },
-      memo: {
-        type: Sequelize.STRING
+      startDate: {
+        type: Sequelize.DATE
+      },
+      endDate: {
+        type: Sequelize.DATE
       },
       isDrop: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false
-      },
-      dropAt: {
-        type: Sequelize.DATE
+        defaultValue: false,
+        type: Sequelize.BOOLEAN
       },
       createdAt: {
         allowNull: false,
@@ -41,6 +42,6 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('Notes');
+    return queryInterface.dropTable('Destinations');
   }
 };
