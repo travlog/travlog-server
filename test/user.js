@@ -41,10 +41,33 @@ describe('UserTest', function() {
         expect(userList).to.have.lengthOf(0)
     })
 
+    it('create user and expect find one user', async () => {
+        const user = await User.create({
+            id: 0,
+            userId: "userId",
+            password: "password",
+            name: "name",
+            username: "username",
+            profilePicture: "profilePicture",
+            isDrop: false,
+            createdDate: new Date(),
+            updatedDate: new Date(),
+            dropDate: null
+        });
+
+        const userList = await User.find({}, 'id userId name username profilePicture').lean().exec()
+        expect(userList).to.have.lengthOf(1)
+    })
+
+    //  테스트 격리를 위해 transaction 처리가 필요 함
+    afterEach(async () => {
+        await User.remove({})
+    });
+
     after(function () {
         if ([1,2].includes(mongoose.connection.readyState)) {
             mongoose.disconnect()
         }
     })
 
-});
+})
