@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "cross-env NODE_ENV=development nodemon ./bin/www",
-    "prod": "cross-env NODE_ENV=production nodemon ./www"
+    "prod": "cross-env NODE_ENV=production nodemon ./www",
+    "test" : "cross-env NODE_ENV=development mocha ./test"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
