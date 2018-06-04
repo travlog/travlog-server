@@ -9,5 +9,8 @@ cache:
 before_install:
   - npm install
 
+services:
+    - mongodb
+
 scripts:
   - npm run test
