@@ -1,6 +1,5 @@
-'use strict';
 module.exports = (sequelize, DataTypes) => {
-  var Location = sequelize.define('location', {
+  let Location = sequelize.define('location', {
     lid: {
       type: DataTypes.STRING,
       unique: true,
@@ -19,8 +18,7 @@ module.exports = (sequelize, DataTypes) => {
     isDrop: DataTypes.BOOLEAN,
     dropAt: DataTypes.DATE
   }, {});
-  Location.associate = function (models) {
-    models.location.hasMany(models.destination, { foreignKey: 'lid', sourceKey: 'lid' })
-  };
+
+  // models.destination, { foreignKey: 'lid', sourceKey: 'lid' }
   return Location;
 };
