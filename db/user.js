@@ -9,12 +9,12 @@ const bcrypt = require('bcryptjs')
 function generateUid() {
     const uid = `u_${uuidv1()}`
 
-    return models.user.find({
+    return models.user.findOne({
         attributes: ['uid'],
         where: {
             uid
         }
-    }).then(result => {
+    }).lean().exec().then(result => {
         if (!result) {
             return uid
         } else {
@@ -136,13 +136,11 @@ exports.getAccountByUserId = (userId) => {
  * @param {*} provider 
  */
 exports.getAccountByEmail = (email, provider) => {
-    return models.account.find({
-        where: {
-            email: email,
-            provider: provider,
-            isDrop: false
-        }
-    })
+    return models.account.findOne({
+        email: email,
+        provider: provider,
+        isDrop: false
+    }).exec()
 };
 
 /**
