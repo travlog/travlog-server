@@ -3,15 +3,8 @@ module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('Locations', {
       id: {
-        allowNull: false,
-        autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
-      },
-      lid: {
-        allowNull: false,
-        unique: true,
-        type: Sequelize.STRING
+        type: Sequelize.UUID
       },
       locality: {
         type: Sequelize.STRING

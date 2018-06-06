@@ -1,7 +1,6 @@
 module.exports = (mongoose) => {
     const DestinationSchema = new mongoose.Schema({
-        id: Number,
-        did: String,
+        id: String,
         nid: String,
         lid: String,
         startDate: Date,

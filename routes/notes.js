@@ -8,7 +8,7 @@ const Note = require('../db/note')
 const auth = require('../lib/auth')
 
 router.post('/', auth.ensureAuthorized, async (req, res) => {
-    const uid = req.user.uid
+    const userId = req.user.id
 
     const { title, destinations } = req.body
 
@@ -19,13 +19,13 @@ router.post('/', auth.ensureAuthorized, async (req, res) => {
     }
 
     const noteParams = {
-        uid, title, destinations
+        userId, title, destinations
     }
 
     try {
         const result = await Note.create(noteParams)
 
-        const note = await Note.getItem(uid, result.nid)
+        const note = await Note.getItem(userId, result.id)
         
         return res.sendResult(API.CODE.SUCCESS, note)
     } catch (e) {
@@ -35,10 +35,10 @@ router.post('/', auth.ensureAuthorized, async (req, res) => {
 })
 
 router.get('/', auth.ensureAuthorized, async (req, res) => {
-    const uid = req.user.uid
+    const userId = req.user.userId
 
     try {
-        const notes = await Note.getListByUid(uid)
+        const notes = await Note.getListByUid(userId)
         return res.sendResult(API.CODE.SUCCESS, {
             list: notes
         })
@@ -48,12 +48,12 @@ router.get('/', auth.ensureAuthorized, async (req, res) => {
     }
 })
 
-router.get('/:nid', auth.ensureAuthorized, async (req, res) => {
+router.get('/:noteId', auth.ensureAuthorized, async (req, res) => {
     const uid = req.user.uid
-    const nid = req.params.nid
+    const noteId = req.params.noteId
 
     try {
-        const note = await Note.getItem(uid, nid)
+        const note = await Note.getItem(uid, noteId)
 
         if (!note) {
             return res.sendResult(API.CODE.NOT_FOUND, {
@@ -68,14 +68,14 @@ router.get('/:nid', auth.ensureAuthorized, async (req, res) => {
     }
 })
 
-router.put('/:nid', auth.ensureAuthorized, async (req, res) => {
+router.put('/:noteId', auth.ensureAuthorized, async (req, res) => {
     const uid = req.user.uid
-    const nid = req.params.nid
+    const noteId = req.params.id
 
     const { title } = req.body
 
     const noteParams = {
-        uid, nid, title
+        uid, noteId, title
     }
 
     try {
@@ -90,12 +90,12 @@ router.put('/:nid', auth.ensureAuthorized, async (req, res) => {
     }
 })
 
-router.delete('/:nid', auth.ensureAuthorized, async (req, res) => {
+router.delete('/:noteId', auth.ensureAuthorized, async (req, res) => {
     const uid = req.user.uid
-    const nid = req.params.nid
+    const noteId = req.params.noteId
 
     try {
-        const note = await Note.getItem(uid, nid)
+        const note = await Note.getItem(uid, noteId)
 
         if (!note) {
             return res.sendResult(API.CODE.NOT_FOUND, {
@@ -103,11 +103,11 @@ router.delete('/:nid', auth.ensureAuthorized, async (req, res) => {
             })
         }
 
-        const result = await Note.delete(uid, nid)
+        const result = await Note.delete(uid, noteId)
         console.log('delete result?', result)
 
         return res.sendResult(API.CODE.SUCCESS, {
-            nid
+            id
         })
     } catch (e) {
         console.error(e)

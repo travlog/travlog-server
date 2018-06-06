@@ -1,9 +1,8 @@
 module.exports = (sequelize, DataTypes) => {
   let Location = sequelize.define('location', {
-    lid: {
-      type: DataTypes.STRING,
-      unique: true,
-      allowNull: false
+    id: {
+      primaryKey: true,
+      type: DataTypes.UUID
     },
     locality: DataTypes.STRING,
     administrativeAreaLevel1: DataTypes.STRING,

@@ -3,22 +3,22 @@ const uuidv1 = require('uuid/v1')
 const bcrypt = require('bcryptjs')
 
 /**
- * uid를 생성합니다.
- * @return {uid} uid
+ * id를 생성합니다.
+ * @return {id} id
  */
-function generateUid() {
-    const uid = `u_${uuidv1()}`
+function generateId() {
+    const id = `u_${uuidv1()}`
 
     return models.user.findOne({
-        attributes: ['uid'],
+        attributes: ['id'],
         where: {
-            uid
+            id
         }
     }).lean().exec().then(result => {
         if (!result) {
-            return uid
+            return id
         } else {
-            return generateUid()
+            return generateId()
         }
     })
 }
@@ -49,7 +49,7 @@ function generateUserId() {
  * @param {*} user 
  */
 exports.createUser = async (user) => {
-    const uid = await generateUid()
+    const id = await generateId()
 
     if (!user.userId) {
         user.userId = await generateUserId()
@@ -62,7 +62,7 @@ exports.createUser = async (user) => {
     }
 
     return models.user.create({
-        uid,
+        id,
         userId: user.userId,
         password: encryptedPassword,
         name: user.name,
@@ -83,8 +83,8 @@ exports.createAccount = (account) => {
  * @param {*} userId 
  */
 exports.getUserByUserId = (userId) => {
-    return models.user.find({
-        attributes: ['uid', 'userId', 'name', 'username', 'profilePicture'],
+    return models.user.findOne({
+        attributes: ['id', 'userId', 'name', 'username', 'profilePicture'],
         include: [{
             model: models.account,
             where: {
@@ -92,7 +92,7 @@ exports.getUserByUserId = (userId) => {
                 isDrop: false
             }
         }]
-    })
+    }).exec()
 }
 
 /**
@@ -103,7 +103,7 @@ exports.getUserByUserId = (userId) => {
 exports.getUserByUserIdAndProvider = (userId, provider) => {
     console.log('getUserByUserIdAndProvider: ')
     return models.user.find({
-        attributes: ['uid', 'userId', 'name', 'username', 'profilePicture'],
+        attributes: ['id', 'userId', 'name', 'username', 'profilePicture'],
         include: [{
             model: models.account,
             where: {
@@ -121,13 +121,13 @@ exports.getUserByUserIdAndProvider = (userId, provider) => {
  * @return {*} account
  */
 exports.getAccountByUserId = (userId) => {
-    return models.account.find({
+    return models.account.findOne({
         attributes: ['userId', 'provider'],
         where: {
             userId, userId,
             isDrop: false
         }
-    })
+    }).exec()
 }
 
 /**
@@ -155,7 +155,7 @@ exports.checkSnsAccountDuplicated = (userId, provider) => {
             provider: provider,
             isDrop: false
         }
-    })
+    }).exec()
 }
 
 /**
@@ -167,7 +167,7 @@ exports.checkSnsAccountDuplicated = (userId, provider) => {
 async function getUserByEmailAndPassword(email, password) {
     console.log('getUserByEmailAndPassword: ')
     let user = await models.user.find({
-        attributes: ['uid', 'userId', 'name', 'username', 'profilePicture', 'password'],
+        attributes: ['id', 'userId', 'name', 'username', 'profilePicture', 'password'],
         where: {
             isDrop: false
         },
@@ -181,7 +181,7 @@ async function getUserByEmailAndPassword(email, password) {
                 }
             }
         ]
-    });
+    }).exec()
 
     const isCorrectPassword = bcrypt.compareSync(password, user.password)
     return isCorrectPassword ? user : undefined;
@@ -196,13 +196,13 @@ async function getUserByEmailAndPassword(email, password) {
 function getUserByUsernameAndPassword(username, password) {
     console.log('getUserByUsernameAndPassword: ')
     return models.user.find({
-        attributes: ['uid', 'userId', 'name', 'username', 'profilePicture'],
+        attributes: ['id', 'userId', 'name', 'username', 'profilePicture'],
         where: {
-            username: username,
-            password: password,
+            username,
+            password,
             isDrop: false
         }
-    })
+    }).exec()
 }
 
 /**
@@ -231,38 +231,38 @@ exports.updateUsername = (userId, username) => {
  */
 exports.getUserByUsername = (username) => {
     return models.user.find({
-        attributes: ['uid', 'name', 'username', 'profilePicture'],
+        attributes: ['id', 'name', 'username', 'profilePicture'],
         where: {
             username: username,
             isDrop: false
         }
-    })
+    }).exec()
 }
 
 /**
  * User에 연결 된 Account를 여러개 가져옵니다.
- * @param {*} uid 
+ * @param {*} user.id 
  */
-exports.getLinkedAccounts = (uid) => {
+exports.getLinkedAccounts = (id) => {
     return models.account.findAll({
         attributes: ['userId', 'email', 'name', 'profilePicture', 'provider'],
         where: {
-            uid,
+            id,
             isDrop: false
         }
-    })
+    }).exec()
 }
 
-exports.updateUserId = (uid, userId) => {
+exports.updateUserId = (id, userId) => {
     return models.user.update({
         userId
     },
         {
             where: {
-                uid,
+                id,
                 isDrop: false
             }
-        })
+        }).exec()
 }
 
 exports.getUserByLoginIdAndPassword = async (loginId, password) => {

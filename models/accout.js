@@ -1,7 +1,6 @@
 module.exports = (mongoose) => {
     const AccountSchema = new mongoose.Schema({
         id: String,
-        uid: String,
         email: String,
         userId: String,
         name: String,

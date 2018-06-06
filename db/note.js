@@ -4,22 +4,22 @@ const Location = require('../db/location')
 const Destination = require('../db/destination')
 
 /**
- * nid 생성합니다.
- * @return {nid} nid
+ * note id 생성합니다.
+ * @return {id} id
  */
-function generateNid() {
-    const nid = `n_${uuidv1()}`
+function generateId() {
+    const id = `n_${uuidv1()}`
 
     return models.note.find({
-        attributes: ['nid'],
+        attributes: ['id'],
         where: {
-            nid
+            id
         }
     }).then(result => {
         if (!result) {
-            return nid
+            return id
         } else {
-            return generateNid()
+            return generateId()
         }
     })
 }
@@ -29,7 +29,7 @@ function generateNid() {
  * @param {*} note 
  */
 exports.create = async (note) => {
-    note.nid = await generateNid()
+    note.id = await generateId()
 
     if (note.destinations) {
         for (let destination of note.destinations) {
@@ -45,7 +45,7 @@ exports.create = async (note) => {
             }
 
             if (location) {
-                destination.nid = note.nid
+                destination.id = note.id
                 destination.lid = location.lid
 
                 await Destination.create(destination)
@@ -61,25 +61,25 @@ exports.create = async (note) => {
  * @param {*} uid 
  */
 exports.getListByUid = (uid) => {
-    return models.note.findAll({
-        attributes: ['nid', 'title', 'memo'],
+    return models.note.find({
+        attributes: ['id', 'title', 'memo'],
         where: {
             uid,
             isDrop: false
         }
-    })
+    }).exec()
 }
 
 /**
- * uid와 nid가 일치하는 한 개의 note를 가져옵니다.
+ * uid와 note가 일치하는 한 개의 note를 가져옵니다.
  * @param {*} uid 
- * @param {*} nid 
+ * @param {*} id 
  */
-exports.getItem = (uid, nid) => {
-    return models.note.find({
-        attributes: ['nid', 'title', 'memo'],
+exports.getItem = (uid, id) => {
+    return models.note.findOne({
+        attributes: ['id', 'title', 'memo'],
         where: {
-            uid, nid,
+            id,
             isDrop: false
         },
         include: [{
@@ -94,7 +94,7 @@ exports.getItem = (uid, nid) => {
                 }
             }]
         }]
-    })
+    }).exec()
 }
 
 /**
@@ -105,7 +105,7 @@ exports.update = (note) => {
     return models.note.update(note, {
         where: {
             uid: note.uid,
-            nid: note.nid
+            id: note.id
         }
     })
 }
@@ -113,16 +113,16 @@ exports.update = (note) => {
 /**
  * note를 삭제합니다.
  * @param {*} uid 
- * @param {*} nid 
+ * @param {*} id note id 
  */
-exports.delete = (uid, nid) => {
+exports.delete = (uid, id) => {
     return models.note.update({
         dropAt: new Date(),
         isDrop: true
     },
         {
             where: {
-                uid, nid
+                id
             }
         })
 }
