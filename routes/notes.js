@@ -69,7 +69,7 @@ router.get('/:noteId', auth.ensureAuthorized, async (req, res) => {
 })
 
 router.put('/:noteId', auth.ensureAuthorized, async (req, res) => {
-    const uid = req.user.uid
+    const uid = req.user.id
     const noteId = req.params.id
 
     const { title } = req.body
