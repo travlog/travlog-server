@@ -49,7 +49,7 @@ router.get('/', auth.ensureAuthorized, async (req, res) => {
 })
 
 router.get('/:noteId', auth.ensureAuthorized, async (req, res) => {
-    const uid = req.user.uid
+    const uid = req.user.id
     const noteId = req.params.noteId
 
     try {
@@ -91,23 +91,23 @@ router.put('/:noteId', auth.ensureAuthorized, async (req, res) => {
 })
 
 router.delete('/:noteId', auth.ensureAuthorized, async (req, res) => {
-    const uid = req.user.uid
+    const uid = req.user.id
     const noteId = req.params.noteId
 
     try {
-        const note = await Note.getItem(uid, noteId)
-
-        if (!note) {
-            return res.sendResult(API.CODE.NOT_FOUND, {
-                msg: 'Note not found.'
-            })
-        }
+        // FIXME: 노트를 삭제 할 때, 해당 노트가 없다면 error를 return 해야 할 필요가 있나?
+        // const note = await Note.getItem(uid, noteId)
+        // 
+        // if (!note) {
+        //     return res.sendResult(API.CODE.NOT_FOUND, {
+        //         msg: 'Note not found.'
+        //     })
+        // }
 
         const result = await Note.delete(uid, noteId)
-        console.log('delete result?', result)
 
         return res.sendResult(API.CODE.SUCCESS, {
-            id
+            id: noteId
         })
     } catch (e) {
         console.error(e)

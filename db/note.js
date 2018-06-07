@@ -97,13 +97,12 @@ exports.update = (note) => {
  * @param {*} id note id 
  */
 exports.delete = (uid, id) => {
-    return models.note.update({
-        dropAt: new Date(),
-        isDrop: true
-    },
+    return models.note.update(
+        { uid, id },
         {
-            where: {
-                id
+            $set: {
+                dropAt: new Date(),
+                isDrop: true
             }
-        })
+        }).exec()
 }
