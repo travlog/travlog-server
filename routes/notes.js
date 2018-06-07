@@ -70,18 +70,22 @@ router.get('/:noteId', auth.ensureAuthorized, async (req, res) => {
 
 router.put('/:noteId', auth.ensureAuthorized, async (req, res) => {
     const uid = req.user.id
-    const noteId = req.params.id
+    const noteId = req.params.noteId
 
     const { title } = req.body
 
     const noteParams = {
-        uid, noteId, title
+        uid,
+        id: noteId,
+        title,
+        isDrop: false
     }
 
     try {
         await Note.update(noteParams)
 
-        const note = await Note.get(noteParams)
+        const note = await Note.getItem(uid, noteId)
+        console.log('note => ', note)
 
         return res.sendResult(API.CODE.SUCCESS, note)
     } catch (e) {
