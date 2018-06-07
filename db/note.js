@@ -83,6 +83,7 @@ exports.getItem = (uid, id) => {
  * @param {*} note 
  */
 exports.update = (note) => {
+    // TODO: mongodb로 migration 해야함
     return models.note.update(note, {
         where: {
             uid: note.uid,
