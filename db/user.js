@@ -100,19 +100,16 @@ exports.getUserByUserId = (userId) => {
  * @param {*} userId 
  * @param {*} provider 
  */
-exports.getUserByUserIdAndProvider = (userId, provider) => {
-    console.log('getUserByUserIdAndProvider: ')
-    return models.user.find({
-        attributes: ['id', 'userId', 'name', 'username', 'profilePicture'],
-        include: [{
-            model: models.account,
-            where: {
-                userId: userId,
-                provider: provider,
-                isDrop: false
-            }
-        }]
+exports.getUserByUserIdAndProvider = (uid, provider) => {
+    // FIXME: account를 user의 내부 배열로 수정해야함
+    return models.account.findOne({
+        uid, provider, isDrop: false
     })
+        .then(res => {
+            return models.user.findOne({
+                id: uid, isDrop: false
+            })
+        })
 }
 
 /**
@@ -185,7 +182,7 @@ async function getUserByEmailAndPassword(email, password) {
     }, 'id uid email provider isDrop')
 
     let user = await models.user.findOne({
-        id : account.uid,
+        id: account.uid,
         isDrop: false
 
     }, 'id userId name username profilePicture password').exec()

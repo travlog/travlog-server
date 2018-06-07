@@ -31,12 +31,12 @@ async function signUpWithSNS(userId, name, email, profilePicture, provider) {
     return { user, account }
 }
 
-function authorize(userId, provider, cb) {
-    if (!userId || !provider) {
-        cb(new Error('userId and provider is required'), null)
+function authorize(uid, provider, cb) {
+    if (!uid || !provider) {
+        cb(new Error('user.id and provider is required'), null)
     }
     jwt.sign({
-        userId, provider
+        uid, provider
     },
         TRAVLOG_SECRET,
         (err, token) => {
@@ -81,7 +81,7 @@ router.post('/signup', async (req, res) => {
                 uid, userId, email, provider
             })
 
-            authorize(user.userId, account.provider, (err, token) => {
+            authorize(user.id, account.provider, (err, token) => {
                 if (err) {
                     console.error(err)
                     return res.sendResult(API.CODE.ERROR.DEFAULT)
@@ -128,7 +128,7 @@ router.post('/signin', async (req, res, next) => {
 
         const account = await User.getAccountByUid(user.id)
 
-        authorize(user.userId, account.provider, (err, token) => {
+        authorize(user.id, account.provider, (err, token) => {
             if (err) {
                 res.sendResult(API.CODE.ERROR.DEFAULT, {
                     msg: 'hi'
@@ -216,7 +216,7 @@ router.post('/oauth', async (req, res) => {
 
             console.log('userId => ', userId, 'account =>', account)
 
-            authorize(userId, account.provider, (err, token) => {
+            authorize(user.id, account.provider, (err, token) => {
                 if (err) {
                     console.error(err)
                     return res.sendResult(API.CODE.ERROR.DEFAULT)

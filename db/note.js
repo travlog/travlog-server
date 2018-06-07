@@ -10,7 +10,7 @@ const Destination = require('../db/destination')
 function generateId() {
     const id = `n_${uuidv1()}`
 
-    return models.note.find({
+    return models.note.findOne({
         attributes: ['id'],
         where: {
             id
@@ -45,7 +45,7 @@ exports.create = async (note) => {
             }
 
             if (location) {
-                destination.id = note.id
+                destination.nid = note.id
                 destination.lid = location.lid
 
                 await Destination.create(destination)
@@ -61,12 +61,9 @@ exports.create = async (note) => {
  * @param {*} uid 
  */
 exports.getListByUid = (uid) => {
+    console.log('getListByUid => ', uid)
     return models.note.find({
-        attributes: ['id', 'title', 'memo'],
-        where: {
-            uid,
-            isDrop: false
-        }
+        uid, isDrop: false
     }).exec()
 }
 
@@ -77,23 +74,7 @@ exports.getListByUid = (uid) => {
  */
 exports.getItem = (uid, id) => {
     return models.note.findOne({
-        attributes: ['id', 'title', 'memo'],
-        where: {
-            id,
-            isDrop: false
-        },
-        include: [{
-            model: models.destination,
-            where: {
-                isDrop: false
-            },
-            include: [{
-                model: models.location,
-                where: {
-                    isDrop: false
-                }
-            }]
-        }]
+        uid, id, isDrop: false
     }).exec()
 }
 

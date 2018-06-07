@@ -8,7 +8,7 @@ const Note = require('../db/note')
 const auth = require('../lib/auth')
 
 router.post('/', auth.ensureAuthorized, async (req, res) => {
-    const userId = req.user.id
+    const uid = req.user.id
 
     const { title, destinations } = req.body
 
@@ -19,14 +19,14 @@ router.post('/', auth.ensureAuthorized, async (req, res) => {
     }
 
     const noteParams = {
-        userId, title, destinations
+        uid, title, destinations
     }
 
     try {
         const result = await Note.create(noteParams)
 
-        const note = await Note.getItem(userId, result.id)
-        
+        const note = await Note.getItem(uid, result.id)
+
         return res.sendResult(API.CODE.SUCCESS, note)
     } catch (e) {
         console.error(e)
@@ -35,10 +35,10 @@ router.post('/', auth.ensureAuthorized, async (req, res) => {
 })
 
 router.get('/', auth.ensureAuthorized, async (req, res) => {
-    const userId = req.user.userId
-
+    const uid = req.user.id
+    console.log('uid => ', uid)
     try {
-        const notes = await Note.getListByUid(userId)
+        const notes = await Note.getListByUid(uid)
         return res.sendResult(API.CODE.SUCCESS, {
             list: notes
         })
