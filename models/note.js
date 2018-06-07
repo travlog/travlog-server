@@ -1,7 +1,13 @@
 module.exports = (mongoose) => {
     const NoteSchema = new mongoose.Schema({
-        id: String,
-        uid: String,
+        id: {
+            type: String,
+            index : true
+        },
+        uid: {
+            type: String,
+            index : true
+        },
         title: String,
         memo: String,
         isDrop: {

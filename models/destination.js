@@ -1,10 +1,25 @@
 module.exports = (mongoose) => {
     const DestinationSchema = new mongoose.Schema({
-        id: String,
-        nid: String,
-        lid: String,
-        startDate: Date,
-        endDate: Date,
+        id: {
+            type: String,
+            index : true
+        },
+        nid: {
+            type: String,
+            index : true
+        },
+        lid: {
+            type: String,
+            index : true
+        },
+        startDate: {
+            type: Date,
+            index : true
+        },
+        endDate: {
+            type: Date,
+            index : true
+        },
         isDrop: {
             type: Boolean,
             default : false
