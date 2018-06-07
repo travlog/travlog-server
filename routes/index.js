@@ -126,7 +126,7 @@ router.post('/signin', async (req, res, next) => {
             })
         }
 
-        const account = await User.getAccountByUserId(user.userId)
+        const account = await User.getAccountByUid(user.id)
 
         authorize(user.userId, account.provider, (err, token) => {
             if (err) {

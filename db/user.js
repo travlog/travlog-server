@@ -30,7 +30,7 @@ function generateId() {
 function generateUserId() {
     var userId = new Date().getTime().toString()
 
-    return models.user.find({
+    return models.user.findOne({
         attributes: ['userId'],
         where: {
             userId
@@ -131,6 +131,18 @@ exports.getAccountByUserId = (userId) => {
 }
 
 /**
+ * userId가 일치하는 한 개의 Account를 가져옵니다.
+ * @param {*} uid
+ * @return {*} account
+ */
+exports.getAccountByUid = (uid) => {
+    return models.account.findOne({
+        uid,
+        isDrop: false
+    }, 'userId provider').exec()
+}
+
+/**
  * email과 provider가 일치하는 한 개의 Account를 가져옵니다.
  * @param {*} email 
  * @param {*} provider 
@@ -166,22 +178,17 @@ exports.checkSnsAccountDuplicated = (userId, provider) => {
  */
 async function getUserByEmailAndPassword(email, password) {
     console.log('getUserByEmailAndPassword: ')
-    let user = await models.user.find({
-        attributes: ['id', 'userId', 'name', 'username', 'profilePicture', 'password'],
-        where: {
-            isDrop: false
-        },
-        include: [
-            {
-                model: models.account,
-                where: {
-                    email,
-                    provider: 'travlog',
-                    isDrop: false
-                }
-            }
-        ]
-    }).exec()
+    let account = await models.account.findOne({
+        email,
+        provider: 'travlog',
+        isDrop: false
+    }, 'id uid email provider isDrop')
+
+    let user = await models.user.findOne({
+        id : account.uid,
+        isDrop: false
+
+    }, 'id userId name username profilePicture password').exec()
 
     const isCorrectPassword = bcrypt.compareSync(password, user.password)
     return isCorrectPassword ? user : undefined;
