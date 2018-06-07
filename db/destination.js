@@ -9,10 +9,7 @@ function generateId() {
     const id = `d_${uuidv1()}`
 
     return models.destination.findOne({
-        attributes: ['id'],
-        where: {
-            id
-        }
+        id
     }).lean().exec().then(result => {
         if (!result) {
             return id

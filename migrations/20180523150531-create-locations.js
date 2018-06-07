@@ -4,7 +4,7 @@ module.exports = {
     return queryInterface.createTable('locations', {
       id: {
         primaryKey: true,
-        type: Sequelize.UUID
+        type: Sequelize.STRING
       },
       locality: {
         type: Sequelize.STRING

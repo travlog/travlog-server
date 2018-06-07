@@ -5,22 +5,22 @@ const googleMapsClient = require('@google/maps').createClient({
 })
 
 /**
- * lid 생성합니다.
- * @return {lid} lid
+ * id 생성합니다.
+ * @return {id} id
  */
-function generateLid() {
-    const lid = `l_${uuidv1()}`
+function generateId() {
+    const id = `l_${uuidv1()}`
 
     return models.location.find({
-        attributes: ['lid'],
+        attributes: ['id'],
         where: {
-            lid
+            id
         }
     }).then(result => {
         if (!result) {
-            return lid
+            return id
         } else {
-            return generateLid()
+            return generateId()
         }
     })
 }
@@ -62,7 +62,7 @@ exports.create = async (placeId) => {
                     })
                 })
 
-                const lid = await generateLid()
+                const id = await generateId()
                 const address = result.formatted_address
                 const latitude = result.geometry.location.lat
                 const longitude = result.geometry.location.lng
@@ -71,7 +71,7 @@ exports.create = async (placeId) => {
                 const reference = result.reference
 
                 const location = {
-                    lid, locality, administrativeAreaLevel1, administrativeAreaLevel2,
+                    id, locality, administrativeAreaLevel1, administrativeAreaLevel2,
                     country, address, latitude, longitude, name, placeId, reference
                 }
 
@@ -88,13 +88,13 @@ exports.create = async (placeId) => {
 }
 
 /**
- * lid로 한 개의 location을 가져옵니다.
- * @param {*} lid lid
+ * id로 한 개의 location을 가져옵니다.
+ * @param {*} id id
  */
-exports.getItem = (lid) => {
+exports.getItem = (id) => {
     return models.location.find({
         where: {
-            lid
+            id
         }
     })
 }

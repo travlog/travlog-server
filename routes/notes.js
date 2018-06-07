@@ -85,7 +85,6 @@ router.put('/:noteId', auth.ensureAuthorized, async (req, res) => {
         await Note.update(noteParams)
 
         const note = await Note.getItem(uid, noteId)
-        console.log('note => ', note)
 
         return res.sendResult(API.CODE.SUCCESS, note)
     } catch (e) {

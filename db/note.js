@@ -1,7 +1,6 @@
 const models = require('../models')
 const uuidv1 = require('uuid/v1')
 const Location = require('../db/location')
-const Destination = require('../db/destination')
 
 /**
  * note id 생성합니다.
@@ -33,7 +32,7 @@ exports.create = async (note) => {
 
     if (note.destinations) {
         for (let destination of note.destinations) {
-            console.log('destination => ', destination)
+
             const placeId = destination.location.placeId
 
             let location = await Location.getItemByPlaceId(placeId)
@@ -45,10 +44,11 @@ exports.create = async (note) => {
             }
 
             if (location) {
-                destination.nid = note.id
-                destination.lid = location.lid
+                // destination.nid = note.id
+                destination.lid = location.id
 
-                await Destination.create(destination)
+                // destination을 note 내부 배열로 migration 하여, destination 모델을 삭제
+                // await Destination.create(destination)
             }
         }
     }
@@ -75,7 +75,21 @@ exports.getListByUid = (uid) => {
 exports.getItem = (uid, id) => {
     return models.note.findOne({
         uid, id, isDrop: false
-    }).exec()
+    }).then(async result => {
+        if (!result) {
+            return null
+        }
+        for (let destination of result.destinations) {
+            /**
+             * FIXME: destination.location 에 대한 mongo schema 정의가 없어서 그런건지,
+             * 그냥 제가 허접해서 그런건지... schema에 존재하는 field를 임의로 변경하면 변경이 되는데,
+             * schema에 없는 field를 새로 만들려고 하니 제대로 동작하지 않습니다...
+             */
+            destination.location = await Location.getItem(destination.lid)
+        }
+
+        return result
+    })
 }
 
 /**

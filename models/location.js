@@ -2,7 +2,7 @@ module.exports = (sequelize, DataTypes) => {
   let Location = sequelize.define('location', {
     id: {
       primaryKey: true,
-      type: DataTypes.UUID
+      type: DataTypes.STRING
     },
     locality: DataTypes.STRING,
     administrativeAreaLevel1: DataTypes.STRING,
