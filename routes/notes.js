@@ -10,16 +10,17 @@ const auth = require('../lib/auth')
 router.post('/', auth.ensureAuthorized, async (req, res) => {
     const uid = req.user.id
 
-    const { title, destinations } = req.body
+    const { title, destination } = req.body
 
     if (!title) {
+
         return res.sendResult(API.CODE.ERROR, {
             msg: 'Title is required.'
         })
     }
 
     const noteParams = {
-        uid, title, destinations
+        uid, title, destinations : [destination]
     }
 
     try {
@@ -98,14 +99,14 @@ router.delete('/:noteId', auth.ensureAuthorized, async (req, res) => {
     const noteId = req.params.noteId
 
     try {
-        // FIXME: 노트를 삭제 할 때, 해당 노트가 없다면 error를 return 해야 할 필요가 있나?
-        // const note = await Note.getItem(uid, noteId)
-        // 
-        // if (!note) {
-        //     return res.sendResult(API.CODE.NOT_FOUND, {
-        //         msg: 'Note not found.'
-        //     })
-        // }
+
+        const note = await Note.getItem(uid, noteId)
+
+        if (!note) {
+            return res.sendResult(API.CODE.NOT_FOUND, {
+                msg: 'Note not found.'
+            })
+        }
 
         const result = await Note.delete(uid, noteId)
 

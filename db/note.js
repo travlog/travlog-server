@@ -32,8 +32,7 @@ exports.create = async (note) => {
 
     if (note.destinations) {
         for (let destination of note.destinations) {
-
-            const placeId = destination.location.placeId
+            const placeId = destination.placeId
 
             let location = await Location.getItemByPlaceId(placeId)
 
@@ -75,16 +74,11 @@ exports.getListByUid = (uid) => {
 exports.getItem = (uid, id) => {
     return models.note.findOne({
         uid, id, isDrop: false
-    }).then(async result => {
+    }).lean().exec().then(async result => {
         if (!result) {
             return null
         }
         for (let destination of result.destinations) {
-            /**
-             * FIXME: destination.location 에 대한 mongo schema 정의가 없어서 그런건지,
-             * 그냥 제가 허접해서 그런건지... schema에 존재하는 field를 임의로 변경하면 변경이 되는데,
-             * schema에 없는 field를 새로 만들려고 하니 제대로 동작하지 않습니다...
-             */
             destination.location = await Location.getItem(destination.lid)
         }
 
