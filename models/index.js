@@ -49,14 +49,18 @@ Object.keys(db).forEach(modelName => {
 })
 
 
-//mongoose connection
-mongoose.Promise = Promise;
-const mongoUri = config.mongo.url
-mongoose.connect(mongoUri, { server: { socketOptions: { keepAlive: 1 } } })
-mongoose.connection.on('error', () => {
-  throw new Error(`unable to connect to database: ${mongoUri}`)
-})
 
+
+
+db.connectMongoose = () => {
+  //mongoose connection
+  mongoose.Promise = Promise;
+  const mongoUri = config.mongo.url
+  mongoose.connect(mongoUri, { server: { socketOptions: { keepAlive: 1 } } })
+  mongoose.connection.on('error', () => {
+      throw new Error(`unable to connect to database: ${mongoUri}`)
+  })
+}
 db.mongoose = mongoose
 db.sequelize = sequelize
 db.Sequelize = Sequelize
