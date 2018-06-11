@@ -46,11 +46,13 @@ describe('test note api', function() {
             url : `${baseUrl}/notes`,
             json : {
                 "title":"title",
-                "destination":{
-                    "placeId":"ChIJzWXFYYuifDUR64Pq5LTtioU",
+                "destinations":[{  
                     "startDate":"2018-05-23 15:39:41",
-                    "endDate":"2018-05-27 15:39:41"
-                }
+                    "endDate":"2018-05-27 15:39:41",
+                    "location":{
+                        "placeId":"ChIJzWXFYYuifDUR64Pq5LTtioU"
+                    }
+                }]
             }
         })
 
