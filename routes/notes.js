@@ -10,7 +10,7 @@ const auth = require('../lib/auth')
 router.post('/', auth.ensureAuthorized, async (req, res) => {
     const uid = req.user.id
 
-    const { title, destination } = req.body
+    const { title, destinations } = req.body
 
     if (!title) {
 
@@ -20,7 +20,7 @@ router.post('/', auth.ensureAuthorized, async (req, res) => {
     }
 
     const noteParams = {
-        uid, title, destinations : [destination]
+        uid, title, destinations
     }
 
     try {

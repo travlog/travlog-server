@@ -32,7 +32,7 @@ exports.create = async (note) => {
 
     if (note.destinations) {
         for (let destination of note.destinations) {
-            const placeId = destination.placeId
+            const placeId = destination.location.placeId
 
             let location = await Location.getItemByPlaceId(placeId)
 
