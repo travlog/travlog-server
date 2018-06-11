@@ -59,8 +59,6 @@ router.put('/:userId/link', auth.ensureAuthorized, async (req, res) => {
 
   const user = await User.getUserByUserId(originalUserId)
 
-  console.log('getUserByUserId: ', JSON.stringify(user))
-
   let userId
   let profilePicture
   let email
@@ -122,7 +120,7 @@ router.put('/:userId/link', auth.ensureAuthorized, async (req, res) => {
           })
         } else {
           const uid = user.id
-          const account = await User.createAccount({
+          await User.createAccount({
             email, userId, provider, name, profilePicture, uid
           })
 

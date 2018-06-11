@@ -64,7 +64,7 @@ router.post('/signup', async (req, res) => {
     const provider = 'travlog'
 
     try {
-        if (await User.getAccountByEmail(email, provider)) {
+        if (await User.getUserByLoginId(email)) {
             // 이메일 중복
             return res.sendResult(API.CODE.ERROR.DUPLICATED, {
                 msg: 'Email already exists.'
@@ -126,7 +126,9 @@ router.post('/signin', async (req, res, next) => {
             })
         }
 
-        const account = await User.getAccountByUid(user.id)
+        const account = user.accounts.find((account) => {
+            return account.email === loginId && account.provider === "travlog"
+        })
 
         authorize(user.id, account.provider, (err, token) => {
             if (err) {
@@ -204,15 +206,15 @@ router.post('/oauth', async (req, res) => {
 
             let user = await User.getUserByUserId(userId)
 
-            let account
-
             if (!user) {
                 ({ user, account } = await signUpWithSNS(userId, name, email, profilePicture, provider))
             } else {
                 await User.updateUserId(user.id, userId)
             }
 
-            // account = await User.getAccountByUserId(userId)
+            let account = user.accounts.find((account) => {
+                return account.userId === userId
+            })
 
             console.log('userId => ', userId, 'account =>', account)
 
