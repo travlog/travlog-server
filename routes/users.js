@@ -113,7 +113,7 @@ router.put('/:userId/link', auth.ensureAuthorized, async (req, res) => {
       } else {
         ({ userId, profilePicture, email, name } = result)
 
-        if (await User.checkSnsAccountDuplicated(userId, provider)) {
+        if ((await User.checkSnsAccountDuplicated(userId, provider)).length > 0) {
           // TODO: 이미 연결 된 계정인데 어떡하지...
           return res.sendResult(API.CODE.ERROR.DUPLICATED, {
             msg: 'already linked'

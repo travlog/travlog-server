@@ -16,8 +16,8 @@ const PROVIDER_ENUM = [
 async function getUserByEmailAndPassword(email, password) {
     console.log('getUserByEmailAndPassword: ')
     let user = await models.user.findOne({
-        "accounts.email" : email,
-        "accounts.provider" : PROVIDER_ENUM[0],
+        "accounts.email": email,
+        "accounts.provider": PROVIDER_ENUM[0],
         isDrop: false
     }, 'id userId name username profilePicture password accounts').lean().exec()
 
@@ -50,8 +50,8 @@ function getUserByUsernameAndPassword(username, password) {
  */
 async function getUserByLoginId(email) {
     return await models.user.findOne({
-        "accounts.email" : email,
-        "accounts.provider" : PROVIDER_ENUM[0],
+        "accounts.email": email,
+        "accounts.provider": PROVIDER_ENUM[0],
         isDrop: false
     }, 'id userId name username profilePicture password accounts').lean().exec()
 }
@@ -64,7 +64,7 @@ async function getUserByLoginId(email) {
 function generateId() {
     const id = `u_${uuidv1()}`
 
-    return models.user.findOne({id}, "id").lean().exec()
+    return models.user.findOne({ id }, "id").lean().exec()
         .then(result => {
             if (!result) {
                 return id
@@ -81,7 +81,7 @@ function generateId() {
 function generateUserId() {
     const userId = new Date().getTime().toString()
 
-    return models.user.findOne({userId}, "userId")
+    return models.user.findOne({ userId }, "userId")
         .then(result => {
             if (!result) {
                 return userId
@@ -131,7 +131,7 @@ exports.createAccount = async (account) => {
     if (!account.userId || account.userId === "")
         account.userId = await generateUserId()
 
-    await models.user.update({id : account.uid}, { $push : {accounts : account}})
+    await models.user.update({ id: account.uid }, { $push: { accounts: account } })
     return account
 }
 
@@ -141,9 +141,9 @@ exports.createAccount = async (account) => {
  */
 exports.getUserByUserId = (userId) => {
     return models.user.findOne({
-        "accounts.userId" : userId,
+        "accounts.userId": userId,
         isDrop: false
-    }, "'id userId name username profilePicture accounts").lean().exec()
+    }, "id userId name username profilePicture accounts").lean().exec()
 }
 
 /**
@@ -158,7 +158,7 @@ exports.getUserByLoginId = getUserByLoginId
  */
 exports.getUserByUid = (uid) => {
     return models.user.findOne({
-        id : uid, isDrop: false
+        id: uid, isDrop: false
     }).lean().exec()
 }
 
@@ -168,12 +168,10 @@ exports.getUserByUid = (uid) => {
  * @param {*} provider 
  */
 exports.checkSnsAccountDuplicated = (userId, provider) => {
-    return models.account.find({
-        where: {
-            userId: userId,
-            provider: provider,
-            isDrop: false
-        }
+    return models.user.find({
+        'accounts.userId': userId,
+        'accounts.provider': provider,
+        'accounts.isDrop': false
     }).exec()
 }
 
@@ -187,7 +185,7 @@ exports.updateUsername = (userId, username) => {
 
     return models.user.update(
         { userId },
-        { $set : { username: username} }
+        { $set: { username: username } }
     )
 }
 
@@ -207,13 +205,10 @@ exports.getUserByUsername = (username) => {
  * @param {*} id
  */
 exports.getLinkedAccounts = (id) => {
-    return models.account.findAll({
-        attributes: ['userId', 'email', 'name', 'profilePicture', 'provider'],
-        where: {
-            id,
-            isDrop: false
-        }
-    }).exec()
+    return models.user.find({
+        id,
+        isDrop: false
+    }, 'accounts').exec()
 }
 
 exports.updateUserId = (id, userId) => {
@@ -265,7 +260,7 @@ async function checkExistAccount(account) {
         if (linkedUserList.length > 0)
             throw new Error(`already exist account(${JSON.stringify(account)})`)
     } else {
-        const linkedUserList = await models.user.find({"accounts.userId": account.userId}).lean().exec()
+        const linkedUserList = await models.user.find({ "accounts.userId": account.userId }).lean().exec()
 
         if (linkedUserList.length > 0)
             throw new Error(`already exist account(${JSON.stringify(account)})`)
