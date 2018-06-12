@@ -1,5 +1,5 @@
 @ENDPOINT = http://localhost:3000/api
-@AUTHORIZATION = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxMDkxMzYyOTc1MDA1MDcwMDU0MTIiLCJwcm92aWRlciI6Imdvb2dsZSIsImlhdCI6MTUyNjgyOTY1Nn0.hmXv5kN5VHCHxRcHDUSl0MzEUZ441c5S5Ih0Y9RsA7w
+@AUTHORIZATION = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJ1XzAyMzAyY2MwLTZkNmItMTFlOC1hY2M2LTMzZDcxNmViZDIwZiIsInByb3ZpZGVyIjoidHJhdmxvZyIsImlhdCI6MTUyODcxNjcwMH0.BrrRafMtYAAY4_uMmUx2C9Yajjz5iyeldKauq9G2dTE
 
 ### sign up with email
 POST {{ENDPOINT}}/signup HTTP/1.1
@@ -35,11 +35,13 @@ Authorization: {{AUTHORIZATION}}
 
 {
     "title":"title",
-    "destination":{
-        "placeId":"ChIJzWXFYYuifDUR64Pq5LTtioU",
+    "destinations":[{  
         "startDate":"2018-05-23 15:39:41",
-        "endDate":"2018-05-27 15:39:41"
-    }
+        "endDate":"2018-05-27 15:39:41",
+        "location":{
+            "placeId":"ChIJzWXFYYuifDUR64Pq5LTtioU"
+        }
+    }]
 }
 
 ### get note

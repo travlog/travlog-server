@@ -2,22 +2,19 @@ const models = require('../models')
 const uuidv1 = require('uuid/v1')
 
 /**
- * did 생성합니다.
- * @return {did} did
+ * destination id 생성합니다.
+ * @return {id} id
  */
-function generateDid() {
-    const did = `d_${uuidv1()}`
+function generateId() {
+    const id = `d_${uuidv1()}`
 
-    return models.destination.find({
-        attributes: ['did'],
-        where: {
-            did
-        }
-    }).then(result => {
+    return models.destination.findOne({
+        id
+    }).lean().exec().then(result => {
         if (!result) {
-            return did
+            return id
         } else {
-            return generateDid()
+            return generateId()
         }
     })
 }
@@ -27,6 +24,6 @@ function generateDid() {
  * @param {*} destination destination
  */
 exports.create = async (destination) => {
-    destination.did = await generateDid()
+    destination.id = await generateId()
     return models.destination.create(destination)
 }

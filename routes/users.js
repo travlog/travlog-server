@@ -59,8 +59,6 @@ router.put('/:userId/link', auth.ensureAuthorized, async (req, res) => {
 
   const user = await User.getUserByUserId(originalUserId)
 
-  console.log('getUserByUserId: ', JSON.stringify(user))
-
   let userId
   let profilePicture
   let email
@@ -115,14 +113,14 @@ router.put('/:userId/link', auth.ensureAuthorized, async (req, res) => {
       } else {
         ({ userId, profilePicture, email, name } = result)
 
-        if (await User.checkSnsAccountDuplicated(userId, provider)) {
+        if ((await User.checkSnsAccountDuplicated(userId, provider)).length > 0) {
           // TODO: 이미 연결 된 계정인데 어떡하지...
           return res.sendResult(API.CODE.ERROR.DUPLICATED, {
-            msg: 'T_T'
+            msg: 'already linked'
           })
         } else {
-          const uid = user.uid
-          const account = await User.createAccount({
+          const uid = user.id
+          await User.createAccount({
             email, userId, provider, name, profilePicture, uid
           })
 
