@@ -1,35 +1,64 @@
-'use strict';
-const models = require('../models')
+module.exports = (mongoose) => {
+    const NoteSchema = new mongoose.Schema({
+        id: {
+            type: String,
+            index: true
+        },
+        uid: {
+            type: String,
+            index: true
+        },
+        title: String,
+        destinations: [{
+            id: {
+                type: String,
+                index: true
+            },
+            nid: {
+                type: String,
+                index: true
+            },
+            lid: {
+                type: String,
+                index: true
+            },
+            startDate: {
+                type: Date,
+                index: true
+            },
+            endDate: {
+                type: Date,
+                index: true
+            },
+            isDrop: {
+                type: Boolean,
+                default: false
+            },
+            createdAt: {
+                type: Date,
+                default: Date.now
+            },
+            updatedAt: {
+                type: Date,
+                default: Date.now
+            },
+            dropAt: Date
+        }],
+        memo: String,
+        isDrop: {
+            type: Boolean,
+            default: false
+        },
+        createdAt: {
+            type: Date,
+            default: Date.now
+        },
+        updatedAt: {
+            type: Date,
+            default: Date.now
+        },
+        dropAt: Date
+    })
 
-module.exports = (sequelize, DataTypes) => {
-  var Note = sequelize.define('note', {
-    id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true
-    },
-    nid: {
-      type: DataTypes.STRING,
-      unique: true,
-      allowNull: false
-    },
-    uid: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      references: {
-        model: models.user, key: 'uid'
-      }
-    },
-    title: DataTypes.STRING,
-    memo: DataTypes.STRING,
-    isDrop: DataTypes.BOOLEAN,
-    createdAt: DataTypes.DATE,
-    updatedAt: DataTypes.DATE,
-    dropAt: DataTypes.DATE
-  }, {})
-  Note.associate = function (models) {
-    models.note.belongsTo(models.user, { foreignKey: 'uid', sourceKey: 'uid' }),
-      models.note.hasMany(models.destination, { foreignKey: 'nid', sourceKey: 'nid' })
-  }
-  return Note
+    return mongoose.model('note', NoteSchema)
 }

@@ -20,21 +20,23 @@ async function signUpWithSNS(userId, name, email, profilePicture, provider) {
         userId, name, profilePicture
     })
 
-    const uid = user.uid
+    const uid = user.id
 
     const account = await User.createAccount({
         email, userId, provider, name, profilePicture, uid
     })
 
+    console.log('user => ', user, 'account => ', account)
+
     return { user, account }
 }
 
-function authorize(userId, provider, cb) {
-    if (!userId || !provider) {
-        cb(new Error('uid and provider is required'), null)
+function authorize(uid, provider, cb) {
+    if (!uid || !provider) {
+        cb(new Error('user.id and provider is required'), null)
     }
     jwt.sign({
-        userId, provider
+        uid, provider
     },
         TRAVLOG_SECRET,
         (err, token) => {
@@ -62,7 +64,7 @@ router.post('/signup', async (req, res) => {
     const provider = 'travlog'
 
     try {
-        if (await User.getAccountByEmail(email, provider)) {
+        if (await User.getUserByLoginId(email)) {
             // 이메일 중복
             return res.sendResult(API.CODE.ERROR.DUPLICATED, {
                 msg: 'Email already exists.'
@@ -72,21 +74,21 @@ router.post('/signup', async (req, res) => {
                 password
             })
 
-            const uid = user.uid
+            const uid = user.id
             const userId = user.userId
 
             const account = await User.createAccount({
                 uid, userId, email, provider
             })
 
-            authorize(user.userId, account.provider, (err, token) => {
+            authorize(user.id, account.provider, (err, token) => {
                 if (err) {
                     console.error(err)
                     return res.sendResult(API.CODE.ERROR.DEFAULT)
                 } else {
                     res.sendResult(API.CODE.SUCCESS, {
                         user: {
-                            uid: user.uid,
+                            id: user.id,
                             name: user.name,
                             username: user.username,
                             profilePicture: user.profilePicture
@@ -124,9 +126,11 @@ router.post('/signin', async (req, res, next) => {
             })
         }
 
-        const account = await User.getAccountByUserId(user.userId)
+        const account = user.accounts.find((account) => {
+            return account.email === loginId && account.provider === "travlog"
+        })
 
-        authorize(user.userId, account.provider, (err, token) => {
+        authorize(user.id, account.provider, (err, token) => {
             if (err) {
                 res.sendResult(API.CODE.ERROR.DEFAULT, {
                     msg: 'hi'
@@ -201,17 +205,20 @@ router.post('/oauth', async (req, res) => {
             ({ userId, profilePicture, email, name } = result)
 
             let user = await User.getUserByUserId(userId)
-            let account
 
             if (!user) {
                 ({ user, account } = await signUpWithSNS(userId, name, email, profilePicture, provider))
             } else {
-                await User.updateUserId(user.uid, userId)
+                await User.updateUserId(user.id, userId)
             }
 
-            account = await User.getAccountByUserId(userId)
+            let account = user.accounts.find((account) => {
+                return account.userId === userId
+            })
 
-            authorize(userId, account.provider, (err, token) => {
+            console.log('userId => ', userId, 'account =>', account)
+
+            authorize(user.id, account.provider, (err, token) => {
                 if (err) {
                     console.error(err)
                     return res.sendResult(API.CODE.ERROR.DEFAULT)

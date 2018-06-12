@@ -1,26 +1,77 @@
 const models = require('../models')
 const uuidv1 = require('uuid/v1')
 const bcrypt = require('bcryptjs')
+const PROVIDER_ENUM = [
+    "travlog",
+    "facebook",
+    "google"
+]
 
 /**
- * uid를 생성합니다.
- * @return {uid} uid
+ * email과 password가 일치하는 한 개의 User를 가져옵니다.
+ * @param {*} email
+ * @param {*} password
+ * @return {*} user
  */
-function generateUid() {
-    const uid = `u_${uuidv1()}`
+async function getUserByEmailAndPassword(email, password) {
+    console.log('getUserByEmailAndPassword: ')
+    let user = await models.user.findOne({
+        "accounts.email": email,
+        "accounts.provider": PROVIDER_ENUM[0],
+        isDrop: false
+    }, 'id userId name username profilePicture password accounts').lean().exec()
 
+    const isCorrectPassword = bcrypt.compareSync(password, user.password)
+    return isCorrectPassword ? user : undefined;
+}
+
+/**
+ * username과 password가 일치하는 한 개의 User를 가져옵니다.
+ * @param {*} username
+ * @param {*} password
+ * @return {*} user
+ */
+function getUserByUsernameAndPassword(username, password) {
+    console.log('getUserByUsernameAndPassword: ')
     return models.user.find({
-        attributes: ['uid'],
+        attributes: ['id', 'userId', 'name', 'username', 'profilePicture'],
         where: {
-            uid
+            username,
+            password,
+            isDrop: false
         }
-    }).then(result => {
-        if (!result) {
-            return uid
-        } else {
-            return generateUid()
-        }
-    })
+    }).exec()
+}
+
+/**
+ * email 한 개의 User를 가져옵니다.
+ * @param {*} email
+ * @return {*} user
+ */
+async function getUserByLoginId(email) {
+    return await models.user.findOne({
+        "accounts.email": email,
+        "accounts.provider": PROVIDER_ENUM[0],
+        isDrop: false
+    }, 'id userId name username profilePicture password accounts').lean().exec()
+}
+
+
+/**
+ * id를 생성합니다.
+ * @return {id} id
+ */
+function generateId() {
+    const id = `u_${uuidv1()}`
+
+    return models.user.findOne({ id }, "id").lean().exec()
+        .then(result => {
+            if (!result) {
+                return id
+            } else {
+                return generateId()
+            }
+        })
 }
 
 /**
@@ -28,20 +79,16 @@ function generateUid() {
  * @return {userId} userId
  */
 function generateUserId() {
-    var userId = new Date().getTime().toString()
+    const userId = new Date().getTime().toString()
 
-    return models.user.find({
-        attributes: ['userId'],
-        where: {
-            userId
-        }
-    }).then(result => {
-        if (!result) {
-            return userId
-        } else {
-            return generateUserId()
-        }
-    })
+    return models.user.findOne({ userId }, "userId")
+        .then(result => {
+            if (!result) {
+                return userId
+            } else {
+                return generateUserId()
+            }
+        })
 }
 
 /**
@@ -49,7 +96,7 @@ function generateUserId() {
  * @param {*} user 
  */
 exports.createUser = async (user) => {
-    const uid = await generateUid()
+    const id = await generateId()
 
     if (!user.userId) {
         user.userId = await generateUserId()
@@ -62,7 +109,7 @@ exports.createUser = async (user) => {
     }
 
     return models.user.create({
-        uid,
+        id,
         userId: user.userId,
         password: encryptedPassword,
         name: user.name,
@@ -70,12 +117,22 @@ exports.createUser = async (user) => {
     })
 }
 
+
+
 /**
  * Account를 생성합니다.
  * @param {*} account 
  */
-exports.createAccount = (account) => {
-    return models.account.create(account)
+exports.createAccount = async (account) => {
+    if (!account.provider || !PROVIDER_ENUM.includes(account.provider)) throw new Error('invalid account.provider')
+
+    await checkExistAccount(account);
+
+    if (!account.userId || account.userId === "")
+        account.userId = await generateUserId()
+
+    await models.user.update({ id: account.uid }, { $push: { accounts: account } })
+    return account
 }
 
 /**
@@ -83,67 +140,27 @@ exports.createAccount = (account) => {
  * @param {*} userId 
  */
 exports.getUserByUserId = (userId) => {
-    return models.user.find({
-        attributes: ['uid', 'userId', 'name', 'username', 'profilePicture'],
-        include: [{
-            model: models.account,
-            where: {
-                userId: userId,
-                isDrop: false
-            }
-        }]
-    })
+    return models.user.findOne({
+        "accounts.userId": userId,
+        isDrop: false
+    }, "id userId name username profilePicture accounts").lean().exec()
 }
+
+/**
+ * loginId(email)로 사용자를 가져옵니다.
+ * @type {function(*)}
+ */
+exports.getUserByLoginId = getUserByLoginId
 
 /**
  * userId와 provider가 일치하는 Account에 연결 된 한 개의 User를 가져옵니다.
- * @param {*} userId 
- * @param {*} provider 
+ * @param {*} uid
  */
-exports.getUserByUserIdAndProvider = (userId, provider) => {
-    console.log('getUserByUserIdAndProvider: ')
-    return models.user.find({
-        attributes: ['uid', 'userId', 'name', 'username', 'profilePicture'],
-        include: [{
-            model: models.account,
-            where: {
-                userId: userId,
-                provider: provider,
-                isDrop: false
-            }
-        }]
-    })
+exports.getUserByUid = (uid) => {
+    return models.user.findOne({
+        id: uid, isDrop: false
+    }).lean().exec()
 }
-
-/**
- * userId가 일치하는 한 개의 Account를 가져옵니다.
- * @param {*} userId 
- * @return {*} account
- */
-exports.getAccountByUserId = (userId) => {
-    return models.account.find({
-        attributes: ['userId', 'provider'],
-        where: {
-            userId, userId,
-            isDrop: false
-        }
-    })
-}
-
-/**
- * email과 provider가 일치하는 한 개의 Account를 가져옵니다.
- * @param {*} email 
- * @param {*} provider 
- */
-exports.getAccountByEmail = (email, provider) => {
-    return models.account.find({
-        where: {
-            email: email,
-            provider: provider,
-            isDrop: false
-        }
-    })
-};
 
 /**
  * userId와 provider가 일치하는 한 개의 Account를 가져옵니다.
@@ -151,60 +168,11 @@ exports.getAccountByEmail = (email, provider) => {
  * @param {*} provider 
  */
 exports.checkSnsAccountDuplicated = (userId, provider) => {
-    return models.account.find({
-        where: {
-            userId: userId,
-            provider: provider,
-            isDrop: false
-        }
-    })
-}
-
-/**
- * email과 password가 일치하는 한 개의 User를 가져옵니다.
- * @param {*} email 
- * @param {*} password 
- * @return {*} user
- */
-async function getUserByEmailAndPassword(email, password) {
-    console.log('getUserByEmailAndPassword: ')
-    let user = await models.user.find({
-        attributes: ['uid', 'userId', 'name', 'username', 'profilePicture', 'password'],
-        where: {
-            isDrop: false
-        },
-        include: [
-            {
-                model: models.account,
-                where: {
-                    email,
-                    provider: 'travlog',
-                    isDrop: false
-                }
-            }
-        ]
-    });
-
-    const isCorrectPassword = bcrypt.compareSync(password, user.password)
-    return isCorrectPassword ? user : undefined;
-}
-
-/**
- * username과 password가 일치하는 한 개의 User를 가져옵니다.
- * @param {*} username 
- * @param {*} password 
- * @return {*} user
- */
-function getUserByUsernameAndPassword(username, password) {
-    console.log('getUserByUsernameAndPassword: ')
     return models.user.find({
-        attributes: ['uid', 'userId', 'name', 'username', 'profilePicture'],
-        where: {
-            username: username,
-            password: password,
-            isDrop: false
-        }
-    })
+        'accounts.userId': userId,
+        'accounts.provider': provider,
+        'accounts.isDrop': false
+    }).exec()
 }
 
 /**
@@ -215,15 +183,9 @@ function getUserByUsernameAndPassword(username, password) {
 exports.updateUsername = (userId, username) => {
     console.log('updateUsername: ' + userId + ', ' + username)
 
-    return models.user.update({
-        username: username
-    },
-        {
-            where: {
-                userId: userId,
-                isDrop: false
-            }
-        }
+    return models.user.update(
+        { userId },
+        { $set: { username: username } }
     )
 }
 
@@ -233,38 +195,32 @@ exports.updateUsername = (userId, username) => {
  */
 exports.getUserByUsername = (username) => {
     return models.user.find({
-        attributes: ['uid', 'name', 'username', 'profilePicture'],
-        where: {
-            username: username,
-            isDrop: false
-        }
-    })
+        username: username,
+        isDrop: false
+    }, 'id name username profilePicture accounts').lean().exec()
 }
 
 /**
  * User에 연결 된 Account를 여러개 가져옵니다.
- * @param {*} uid 
+ * @param {*} id
  */
-exports.getLinkedAccounts = (uid) => {
-    return models.account.findAll({
-        attributes: ['userId', 'email', 'name', 'profilePicture', 'provider'],
-        where: {
-            uid,
-            isDrop: false
-        }
-    })
+exports.getLinkedAccounts = (id) => {
+    return models.user.find({
+        id,
+        isDrop: false
+    }, 'accounts').exec()
 }
 
-exports.updateUserId = (uid, userId) => {
+exports.updateUserId = (id, userId) => {
     return models.user.update({
         userId
     },
         {
             where: {
-                uid,
+                id,
                 isDrop: false
             }
-        })
+        }).exec()
 }
 
 exports.getUserByLoginIdAndPassword = async (loginId, password) => {
@@ -276,4 +232,37 @@ exports.getUserByLoginIdAndPassword = async (loginId, password) => {
     }
 
     return user
+}
+
+exports.getUserByLoginIdAndPassword = async (loginId, password) => {
+    console.log('getUserByLoginIdAndPassword: ')
+    let user = await getUserByEmailAndPassword(loginId, password)
+
+    if (!user) {
+        user = await getUserByUsernameAndPassword(loginId, password)
+    }
+
+    return user
+}
+
+/**
+ * 이미 연동된 account 인지 체크
+ * @param account
+ * @returns {Promise<void>}
+ */
+async function checkExistAccount(account) {
+    if (account.provider === "travlog") {
+        const linkedUserList = await models.user.find({
+            "accounts.email": account.email,
+            "accounts.provider": account.provider
+        }).lean().exec()
+
+        if (linkedUserList.length > 0)
+            throw new Error(`already exist account(${JSON.stringify(account)})`)
+    } else {
+        const linkedUserList = await models.user.find({ "accounts.userId": account.userId }).lean().exec()
+
+        if (linkedUserList.length > 0)
+            throw new Error(`already exist account(${JSON.stringify(account)})`)
+    }
 }

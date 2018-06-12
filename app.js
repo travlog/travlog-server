@@ -21,6 +21,8 @@ require('./models/index').sequelize.authenticate()
   .catch(err => {
     console.error('Unable to connect to the database:', err)
   })
+require('./models/index').connectMongoose()
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'))
