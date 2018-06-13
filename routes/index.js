@@ -205,18 +205,13 @@ router.post('/oauth', async (req, res) => {
             ({ userId, profilePicture, email, name } = result)
 
             let user = await User.getUserByUserId(userId)
+            let account = {}
 
             if (!user) {
                 ({ user, account } = await signUpWithSNS(userId, name, email, profilePicture, provider))
             } else {
                 await User.updateUserId(user.id, userId)
             }
-
-            let account = user.accounts.find((account) => {
-                return account.userId === userId
-            })
-
-            console.log('userId => ', userId, 'account =>', account)
 
             authorize(user.id, account.provider, (err, token) => {
                 if (err) {
